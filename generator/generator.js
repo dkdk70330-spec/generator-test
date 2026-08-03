@@ -284,6 +284,8 @@ const elements = {
     characterSubtitleInput: document.querySelector("#characterSubtitleInput"),
     characterWorldSelect: document.querySelector("#characterWorldSelect"),
     characterFeaturedInput: document.querySelector("#characterFeaturedInput"),
+    characterFeaturedCount: document.querySelector("#characterFeaturedCount"),
+    characterNewInput: document.querySelector("#characterNewInput"),
     characterGenreList: document.querySelector("#characterGenreList"),
     characterTagsInput: document.querySelector("#characterTagsInput"),
     characterDescriptionInput: document.querySelector("#characterDescriptionInput"),
@@ -847,6 +849,7 @@ const elements = {
         normalizeString(tag, `characters[${index}].tags[${tagIndex}]`).trim()
       ).filter(Boolean),
       featured: character.featured === true,
+      isNew: character.isNew === true,
       images: rawImages.map((image, imageIndex) =>
         normalizeCharacterImage(image, `characters[${index}].images[${imageIndex}]`)
       ).filter(Boolean),
@@ -1136,6 +1139,7 @@ const elements = {
       genres: [],
       tags: [],
       featured: false,
+      isNew: false,
       images: [],
       platforms: [],
       contents: [],
@@ -3840,6 +3844,16 @@ function renderCharacterGenres() {
     `).join("");
   }
 
+  function updateCharacterStatusControls() {
+    const featuredCount = project.characters.filter(
+      (character) => character.featured === true
+    ).length;
+
+    if (elements.characterFeaturedCount) {
+      elements.characterFeaturedCount.textContent = `${featuredCount}/3`;
+    }
+  }
+
   function populateCharacterFields() {
     const character = getSelectedCharacter();
     const hasCharacter = Boolean(character);
@@ -3850,6 +3864,8 @@ function renderCharacterGenres() {
     elements.characterNameInput.value = character.name || "";
     elements.characterSubtitleInput.value = character.subtitle || "";
     elements.characterFeaturedInput.checked = character.featured === true;
+    elements.characterNewInput.checked = character.isNew === true;
+    updateCharacterStatusControls();
     elements.characterTagsInput.value = (character.tags || []).join(", ");
     elements.characterDescriptionInput.value = bioArrayToText(character.description);
 
@@ -3900,6 +3916,7 @@ const genres = (character.genres || [])
         <button type="button" class="character-preview-card-button" data-preview-character="${escapeHtml(character.id)}" aria-label="${escapeHtml(character.name || "이름 없는 캐릭터")} 상세 보기">
           <div class="character-preview-card-image-wrap">
             ${image}
+            ${character.isNew ? '<span class="character-new-badge" title="신작" aria-label="신작">N</span>' : ""}
             <div class="character-preview-card-platforms">${characterPlatformDots(character)}</div>
             ${
               hasPlayableMusic(character)
@@ -4672,6 +4689,9 @@ elements.characterPreviewModalTags.innerHTML = [
     } else {
       character.featured = requestedFeatured;
     }
+
+    character.isNew = elements.characterNewInput.checked;
+    updateCharacterStatusControls();
 
     character.name = elements.characterNameInput.value.trim();
     character.subtitle = elements.characterSubtitleInput.value.trim();
@@ -7366,6 +7386,7 @@ elements.characterPreviewModalTags.innerHTML = [
           <button type="button" class="character-preview-card-button" data-preview-character="${escapeHtml(character.id)}">
             <div class="character-preview-card-image-wrap">
               ${image}
+              ${character.isNew ? '<span class="character-new-badge" title="신작" aria-label="신작">N</span>' : ""}
               <div class="character-preview-card-platforms">${platformDots(character)}</div>
               ${hasPlayableMusic(character) ? '<span class="archive-music-mark" title="음악 있음" aria-hidden="true">♫</span>' : ""}
             </div>

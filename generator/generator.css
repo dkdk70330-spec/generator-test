@@ -4875,7 +4875,7 @@ body.character-filter-picker-open { overflow: hidden; }
 
 /* =========================================================
    Horizontal archive prototype
-   기능과 데이터 구조는 유지하고 공개 미리보기의 배치만 변경합니다.
+   기존 기능은 유지하고 공개 미리보기 배치와 신작 표시만 확장합니다.
    ========================================================= */
 
 :root {
@@ -5496,4 +5496,139 @@ body.character-filter-picker-open { overflow: hidden; }
 #archiveTabWorld:checked ~ .archive-site-shell #previewWorldToggleWrap,
 #archiveTabCharacter:checked ~ .archive-site-shell #previewCharacterToggleWrap {
   display: none !important;
+}
+
+
+/* ---------------------------------------------------------
+   Compact character status controls + thumbnail markers
+   --------------------------------------------------------- */
+.character-world-featured-grid.character-status-row {
+  grid-template-columns: minmax(160px, .72fr) minmax(220px, 1.28fr);
+  gap: .65rem;
+  align-items: end;
+}
+
+.character-status-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .55rem;
+}
+
+.character-compact-option {
+  display: flex;
+  min-width: 0;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: .48rem;
+  margin: 0;
+  padding: .58rem .72rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--surface-2) 72%, transparent);
+  color: var(--muted);
+  cursor: pointer;
+  font-size: .75rem;
+  font-weight: 850;
+  line-height: 1;
+}
+
+.character-compact-option:hover {
+  border-color: var(--line-strong);
+  color: var(--text);
+}
+
+.character-compact-option:has(input:checked) {
+  border-color: var(--accent);
+  color: var(--text);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 32%, transparent);
+}
+
+.character-compact-option input {
+  width: 17px;
+  height: 17px;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  accent-color: var(--accent);
+}
+
+.character-compact-option span {
+  display: inline-flex;
+  min-width: 0;
+  align-items: center;
+  gap: .32rem;
+  white-space: nowrap;
+}
+
+.character-compact-option b {
+  color: var(--accent);
+  font-size: .68rem;
+}
+
+.character-new-option b {
+  display: grid;
+  width: 18px;
+  height: 18px;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--accent) 72%, transparent);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: .62rem;
+}
+
+.character-new-badge {
+  position: absolute;
+  z-index: 4;
+  top: .45rem;
+  right: .45rem;
+  display: grid;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--accent) 72%, rgba(255,255,255,.22));
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--bg) 78%, transparent);
+  color: var(--accent);
+  box-shadow: 0 5px 16px rgba(0, 0, 0, .28);
+  backdrop-filter: blur(8px);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: .64rem;
+  font-weight: 950;
+  line-height: 1;
+}
+
+/* 프로토타입에서 숨겼던 플랫폼을 이미지 우측 하단에 다시 표시합니다. */
+.archive-pages .character-preview-card-platforms {
+  display: flex !important;
+  z-index: 4;
+  right: .42rem;
+  bottom: .42rem;
+  gap: .22rem;
+}
+
+.archive-pages .character-preview-platform-dot {
+  width: 20px;
+  height: 20px;
+  border-color: rgba(255,255,255,.26);
+  background: rgba(8,8,12,.76);
+  box-shadow: 0 4px 12px rgba(0,0,0,.24);
+  backdrop-filter: blur(8px);
+}
+
+.archive-pages .character-preview-platform-dot img {
+  padding: 3px;
+}
+
+@container (max-width: 520px) {
+  .character-world-featured-grid.character-status-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 620px) {
+  .character-status-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
