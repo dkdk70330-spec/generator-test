@@ -7,6 +7,7 @@
       title: "",
       description: "",
       textColor: "#f4f1ea",
+      textColors: { title: "#f4f1ea", description: "#f4f1ea" },
       themeColor: "#a897ff"
     },
     creator: {
@@ -16,6 +17,7 @@
       name: "",
       handle: "",
       bio: [],
+      textColors: { name: "#f4f1ea", handle: "#f4f1ea", bio: "#f4f1ea" },
       links: []
     },
     worlds: [],
@@ -200,14 +202,17 @@ const elements = {
 
     siteTitleInput: document.querySelector("#siteTitleInput"),
     siteDescriptionInput: document.querySelector("#siteDescriptionInput"),
-    siteTextColorInput: document.querySelector("#siteTextColorInput"),
-    siteTextColorValue: document.querySelector("#siteTextColorValue"),
+    siteTitleColorInput: document.querySelector("#siteTitleColorInput"),
+    siteDescriptionColorInput: document.querySelector("#siteDescriptionColorInput"),
     siteThemeColorInput: document.querySelector("#siteThemeColorInput"),
     siteThemeColorValue: document.querySelector("#siteThemeColorValue"),
     creatorNameInput: document.querySelector("#creatorNameInput"),
     creatorHandleInput: document.querySelector("#creatorHandleInput"),
     creatorFallbackInput: document.querySelector("#creatorFallbackInput"),
     creatorBioInput: document.querySelector("#creatorBioInput"),
+    creatorNameColorInput: document.querySelector("#creatorNameColorInput"),
+    creatorHandleColorInput: document.querySelector("#creatorHandleColorInput"),
+    creatorBioColorInput: document.querySelector("#creatorBioColorInput"),
 
     avatarInput: document.querySelector("#avatarInput"),
     avatarEditorPreview: document.querySelector("#avatarEditorPreview"),
@@ -245,6 +250,10 @@ const elements = {
     worldSubtitleInput: document.querySelector("#worldSubtitleInput"),
     worldTagsInput: document.querySelector("#worldTagsInput"),
     worldDescriptionInput: document.querySelector("#worldDescriptionInput"),
+    worldNameColorInput: document.querySelector("#worldNameColorInput"),
+    worldSubtitleColorInput: document.querySelector("#worldSubtitleColorInput"),
+    worldTagsColorInput: document.querySelector("#worldTagsColorInput"),
+    worldDescriptionColorInput: document.querySelector("#worldDescriptionColorInput"),
     worldCharacterLinkSearchInput: document.querySelector("#worldCharacterLinkSearchInput"),
     worldCharacterLinkResultSummary: document.querySelector("#worldCharacterLinkResultSummary"),
     worldCharacterLinkMoreButton: document.querySelector("#worldCharacterLinkMoreButton"),
@@ -294,6 +303,10 @@ const elements = {
     characterGenreList: document.querySelector("#characterGenreList"),
     characterTagsInput: document.querySelector("#characterTagsInput"),
     characterDescriptionInput: document.querySelector("#characterDescriptionInput"),
+    characterNameColorInput: document.querySelector("#characterNameColorInput"),
+    characterSubtitleColorInput: document.querySelector("#characterSubtitleColorInput"),
+    characterTagsColorInput: document.querySelector("#characterTagsColorInput"),
+    characterDescriptionColorInput: document.querySelector("#characterDescriptionColorInput"),
     addCharacterMusicButton: document.querySelector("#addCharacterMusicButton"),
     characterMusicList: document.querySelector("#characterMusicList"),
     characterPlatformList: document.querySelector("#characterPlatformList"),
@@ -315,6 +328,9 @@ const elements = {
     planTitleInput: document.querySelector("#planTitleInput"),
     planStatusInput: document.querySelector("#planStatusInput"),
     planDescriptionInput: document.querySelector("#planDescriptionInput"),
+    planTitleColorInput: document.querySelector("#planTitleColorInput"),
+    planStatusColorInput: document.querySelector("#planStatusColorInput"),
+    planDescriptionColorInput: document.querySelector("#planDescriptionColorInput"),
     planPlatformList: document.querySelector("#planPlatformList"),
 
     previewSiteTitle: document.querySelector("#previewSiteTitle"),
@@ -714,7 +730,8 @@ const elements = {
         `worlds[${worldIndex}].sections[${sectionIndex}].title`
       ),
       content,
-      collapsible: section.collapsible === true
+      collapsible: section.collapsible === true,
+      textColors: normalizeTextColorMap(section.textColors, ["title", "content"])
     };
   }
 
@@ -764,7 +781,8 @@ const elements = {
       ),
       music: rawMusic.map((track, trackIndex) =>
         normalizeMusicTrack(track, `worlds[${index}]`, trackIndex)
-      )
+      ),
+      textColors: normalizeTextColorMap(world.textColors, ["name", "subtitle", "tags", "description"])
     };
   }
 
@@ -830,7 +848,8 @@ const elements = {
       content,
       spoiler: item.spoiler === true,
       collapsible: item.collapsible === true,
-      warning: normalizeString(item.warning, `characters[${characterIndex}].contents[${contentIndex}].warning`)
+      warning: normalizeString(item.warning, `characters[${characterIndex}].contents[${contentIndex}].warning`),
+      textColors: normalizeTextColorMap(item.textColors, ["type", "title", "content", "warning"])
     };
   }
 
@@ -912,7 +931,8 @@ const elements = {
       ),
       music: rawMusic.map((track, trackIndex) =>
         normalizeMusicTrack(track, `characters[${index}]`, trackIndex)
-      )
+      ),
+      textColors: normalizeTextColorMap(character.textColors, ["name", "subtitle", "tags", "description"])
     };
   }
 
@@ -945,13 +965,31 @@ const elements = {
       ).filter(Boolean),
       platforms: [...new Set(rawPlatforms.map((platformId, platformIndex) =>
         normalizeString(platformId, `plans[${index}].platforms[${platformIndex}]`).trim()
-      ).filter(Boolean))]
+      ).filter(Boolean))],
+      textColors: normalizeTextColorMap(plan.textColors, ["title", "status", "description"])
     };
   }
 
   function normalizeHexColor(value, fallback) {
     const normalized = String(value || "").trim().toLowerCase();
     return /^#[0-9a-f]{6}$/.test(normalized) ? normalized : fallback;
+  }
+
+
+  function normalizeTextColorMap(value, keys, fallback = DEFAULT_TEXT_COLOR) {
+    const source = isPlainObject(value) ? value : {};
+    return Object.fromEntries(
+      keys.map((key) => [key, normalizeHexColor(source[key], fallback)])
+    );
+  }
+
+  function colorStyle(color) {
+    return `color:${normalizeHexColor(color, DEFAULT_TEXT_COLOR)}`;
+  }
+
+  function applyElementColor(element, color) {
+    if (!element) return;
+    element.style.color = normalizeHexColor(color, DEFAULT_TEXT_COLOR);
   }
 
   function contrastTextColor(hexColor) {
@@ -1082,6 +1120,7 @@ const elements = {
         title: normalizeString(rawSite.title, "site.title"),
         description: normalizeString(rawSite.description, "site.description"),
         textColor: normalizeHexColor(rawSite.textColor, DEFAULT_TEXT_COLOR),
+        textColors: normalizeTextColorMap(rawSite.textColors, ["title", "description"], normalizeHexColor(rawSite.textColor, DEFAULT_TEXT_COLOR)),
         themeColor: normalizeHexColor(rawSite.themeColor, DEFAULT_THEME_COLOR)
       },
       creator: {
@@ -1096,6 +1135,7 @@ const elements = {
         name: normalizeString(rawCreator.name, "creator.name"),
         handle: normalizeString(rawCreator.handle, "creator.handle"),
         bio,
+        textColors: normalizeTextColorMap(rawCreator.textColors, ["name", "handle", "bio"], normalizeHexColor(rawSite.textColor, DEFAULT_TEXT_COLOR)),
         links
       },
       worlds,
@@ -1214,6 +1254,7 @@ const elements = {
       image: "",
       tags: [],
       description: [],
+      textColors: normalizeTextColorMap({}, ["name", "subtitle", "tags", "description"]),
       sections: [],
       music: []
     };
@@ -1224,7 +1265,8 @@ const elements = {
       id: createEntityId("world-section"),
       title: "",
       content: [],
-      collapsible: false
+      collapsible: false,
+      textColors: normalizeTextColorMap({}, ["title", "content"])
     };
   }
 
@@ -1243,7 +1285,8 @@ const elements = {
       images: [],
       platforms: [],
       contents: [],
-      music: []
+      music: [],
+      textColors: normalizeTextColorMap({}, ["name", "subtitle", "tags", "description"])
     };
   }
 
@@ -1255,7 +1298,8 @@ const elements = {
       title: "",
       status: "",
       description: [],
-      platforms: []
+      platforms: [],
+      textColors: normalizeTextColorMap({}, ["title", "status", "description"])
     };
   }
 
@@ -2496,7 +2540,8 @@ blocks.forEach(({ block, number }) => {
       content: [],
       spoiler: false,
       collapsible: false,
-      warning: ""
+      warning: "",
+      textColors: normalizeTextColorMap({}, ["type", "title", "content", "warning"])
     };
   }
 
@@ -3445,21 +3490,25 @@ blocks.forEach(({ block, number }) => {
   function syncProjectFromFields() {
     project.site.title = elements.siteTitleInput.value.trim();
     project.site.description = elements.siteDescriptionInput.value.trim();
-    project.site.textColor = normalizeHexColor(
-      elements.siteTextColorInput.value,
-      DEFAULT_TEXT_COLOR
-    );
+    project.site.textColors = {
+      title: normalizeHexColor(elements.siteTitleColorInput.value, DEFAULT_TEXT_COLOR),
+      description: normalizeHexColor(elements.siteDescriptionColorInput.value, DEFAULT_TEXT_COLOR)
+    };
     project.site.themeColor = normalizeHexColor(
       elements.siteThemeColorInput.value,
       DEFAULT_THEME_COLOR
     );
-    elements.siteTextColorValue.value = project.site.textColor;
     elements.siteThemeColorValue.value = project.site.themeColor;
 
     project.creator.name = elements.creatorNameInput.value.trim();
     project.creator.handle = elements.creatorHandleInput.value.trim();
     project.creator.fallbackText = elements.creatorFallbackInput.value.trim();
     project.creator.bio = bioTextToArray(elements.creatorBioInput.value);
+    project.creator.textColors = {
+      name: normalizeHexColor(elements.creatorNameColorInput.value, DEFAULT_TEXT_COLOR),
+      handle: normalizeHexColor(elements.creatorHandleColorInput.value, DEFAULT_TEXT_COLOR),
+      bio: normalizeHexColor(elements.creatorBioColorInput.value, DEFAULT_TEXT_COLOR)
+    };
 
     markChanged();
   }
@@ -3954,15 +4003,15 @@ function renderCharacterGenres() {
           <button type="button" data-delete-character-content>삭제</button>
         </div>
         <label>
-          <span>분류</span>
+          <span class="editable-field-heading"><span>분류</span><input class="field-color-input" type="color" value="${escapeHtml(normalizeHexColor(item.textColors?.type, DEFAULT_TEXT_COLOR))}" data-character-content-color="type" aria-label="추가 콘텐츠 분류 글자색"></span>
           <input type="text" value="${escapeHtml(item.type)}" placeholder="예: 제작 비하인드" data-character-content-field="type">
         </label>
         <label>
-          <span>제목</span>
+          <span class="editable-field-heading"><span>제목</span><input class="field-color-input" type="color" value="${escapeHtml(normalizeHexColor(item.textColors?.title, DEFAULT_TEXT_COLOR))}" data-character-content-color="title" aria-label="추가 콘텐츠 제목 글자색"></span>
           <input type="text" value="${escapeHtml(item.title)}" placeholder="예: 이름과 모티프" data-character-content-field="title">
         </label>
         <label>
-          <span>내용</span>
+          <span class="editable-field-heading"><span>내용</span><input class="field-color-input" type="color" value="${escapeHtml(normalizeHexColor(item.textColors?.content, DEFAULT_TEXT_COLOR))}" data-character-content-color="content" aria-label="추가 콘텐츠 내용 글자색"></span>
           <textarea rows="5" placeholder="문단을 나누려면 빈 줄을 하나 넣어주세요." data-character-content-field="content">${escapeHtml(bioArrayToText(item.content))}</textarea>
         </label>
         <div class="character-content-display-options">
@@ -3976,7 +4025,7 @@ function renderCharacterGenres() {
           </label>
         </div>
         <label data-character-warning-field ${item.spoiler ? "" : "hidden"}>
-          <span>스포일러 경고문</span>
+          <span class="editable-field-heading"><span>스포일러 경고문</span><input class="field-color-input" type="color" value="${escapeHtml(normalizeHexColor(item.textColors?.warning, DEFAULT_TEXT_COLOR))}" data-character-content-color="warning" aria-label="스포일러 경고문 글자색"></span>
           <input type="text" value="${escapeHtml(item.warning)}" placeholder="예: 핵심 반전이 포함되어 있습니다." data-character-content-field="warning">
         </label>
       </article>
@@ -4000,6 +4049,10 @@ function renderCharacterGenres() {
     }
     elements.characterTagsInput.value = (character.tags || []).join(", ");
     elements.characterDescriptionInput.value = bioArrayToText(character.description);
+    elements.characterNameColorInput.value = normalizeHexColor(character.textColors?.name, DEFAULT_TEXT_COLOR);
+    elements.characterSubtitleColorInput.value = normalizeHexColor(character.textColors?.subtitle, DEFAULT_TEXT_COLOR);
+    elements.characterTagsColorInput.value = normalizeHexColor(character.textColors?.tags, DEFAULT_TEXT_COLOR);
+    elements.characterDescriptionColorInput.value = normalizeHexColor(character.textColors?.description, DEFAULT_TEXT_COLOR);
 
     const index = project.characters.findIndex((item) => item.id === character.id);
     elements.moveCharacterUpButton.disabled = index <= 0;
@@ -4058,8 +4111,8 @@ const genres = (character.genres || [])
           </div>
           <div class="character-preview-card-body">
             <div class="character-preview-card-genres">${genres}</div>
-            <h3>${escapeHtml(character.name || "이름 없는 캐릭터")}</h3>
-            <p>${escapeHtml(character.subtitle || "캐릭터 부제를 입력해 주세요.")}</p>
+            <h3 style="${colorStyle(character.textColors?.name)}">${escapeHtml(character.name || "이름 없는 캐릭터")}</h3>
+            <p style="${colorStyle(character.textColors?.subtitle)}">${escapeHtml(character.subtitle || "캐릭터 부제를 입력해 주세요.")}</p>
             <span class="character-preview-card-more">상세 보기 <b aria-hidden="true">↗</b></span>
           </div>
         </button>
@@ -4679,16 +4732,23 @@ const genres = (character.genres || [])
   function characterContentMarkup(item) {
     const type = item.type || (item.spoiler ? "스포일러" : "추가 정보");
     const title = item.title || "제목 없는 콘텐츠";
-    const body = (item.content || []).map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join("");
+    const typeStyle = colorStyle(item.textColors?.type);
+    const titleStyle = colorStyle(item.textColors?.title);
+    const warningStyle = colorStyle(item.textColors?.warning);
+    const body = (item.content || [])
+      .map((paragraph) => `<p style="${colorStyle(item.textColors?.content)}">${escapeHtml(paragraph)}</p>`)
+      .join("");
+    const heading = `<span><small style="${typeStyle}">${escapeHtml(type)}</small><strong style="${titleStyle}">${escapeHtml(title)}</strong></span>`;
+
     if (item.spoiler) {
       return `
         <details class="character-preview-content-box is-spoiler">
           <summary>
             <span class="character-preview-content-icon">⚠</span>
             <span>
-              <small>${escapeHtml(type)}</small>
-              <strong>${escapeHtml(title)}</strong>
-              <em>${escapeHtml(item.warning || "스포일러가 포함되어 있습니다.")}</em>
+              <small style="${typeStyle}">${escapeHtml(type)}</small>
+              <strong style="${titleStyle}">${escapeHtml(title)}</strong>
+              <em style="${warningStyle}">${escapeHtml(item.warning || "스포일러가 포함되어 있습니다.")}</em>
             </span>
             <b aria-hidden="true">⌄</b>
           </summary>
@@ -4701,7 +4761,7 @@ const genres = (character.genres || [])
         <details class="character-preview-content-box is-public is-collapsible">
           <summary>
             <span class="character-preview-content-icon">✦</span>
-            <span><small>${escapeHtml(type)}</small><strong>${escapeHtml(title)}</strong></span>
+            ${heading}
             <b aria-hidden="true">⌄</b>
           </summary>
           <div class="character-preview-content-body">${body}</div>
@@ -4712,7 +4772,7 @@ const genres = (character.genres || [])
       <article class="character-preview-content-box is-public">
         <header>
           <span class="character-preview-content-icon">✦</span>
-          <span><small>${escapeHtml(type)}</small><strong>${escapeHtml(title)}</strong></span>
+          ${heading}
         </header>
         <div class="character-preview-content-body">${body}</div>
       </article>
@@ -4731,6 +4791,8 @@ const genres = (character.genres || [])
 
     elements.characterPreviewModalTitle.textContent = character.name || "이름 없는 캐릭터";
     elements.characterPreviewModalSummary.textContent = character.subtitle || "";
+    applyElementColor(elements.characterPreviewModalTitle, character.textColors?.name);
+    applyElementColor(elements.characterPreviewModalSummary, character.textColors?.subtitle);
     elements.characterPreviewModalSummary.hidden = !character.subtitle;
     elements.characterPreviewMainImage.hidden = !mainUrl;
     elements.characterPreviewMainImageFallback.hidden = Boolean(mainUrl);
@@ -4761,13 +4823,13 @@ elements.characterPreviewModalTags.innerHTML = [
   ...genreLabels,
   ...(character.tags || [])
 ]
-  .map((tag) => `<span>${escapeHtml(tag)}</span>`)
+  .map((tag) => `<span style="${colorStyle(character.textColors?.tags)}">${escapeHtml(tag)}</span>`)
   .join("");
     elements.characterPreviewModalTags.hidden = !(character.genres || []).length && !(character.tags || []).length;
     renderSoundtrack(elements.characterPreviewSoundtrack, character);
 
     elements.characterPreviewModalDescription.innerHTML = (character.description || [])
-      .map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join("");
+      .map((paragraph) => `<p style="${colorStyle(character.textColors?.description)}">${escapeHtml(paragraph)}</p>`).join("");
     elements.characterPreviewModalDescription.hidden = !(character.description || []).length;
 
     elements.characterPreviewPlatforms.innerHTML = (character.platforms || []).map((link) => {
@@ -4788,6 +4850,8 @@ elements.characterPreviewModalTags.innerHTML = [
       elements.characterPreviewWorldButton.dataset.previewWorld = world.id;
       elements.characterPreviewWorldName.textContent = world.name || "이름 없는 세계관";
       elements.characterPreviewWorldSummary.textContent = world.subtitle || "";
+      applyElementColor(elements.characterPreviewWorldName, world.textColors?.name);
+      applyElementColor(elements.characterPreviewWorldSummary, world.textColors?.subtitle);
     } else {
       delete elements.characterPreviewWorldButton.dataset.previewWorld;
       elements.characterPreviewWorldName.textContent = "";
@@ -4831,6 +4895,12 @@ elements.characterPreviewModalTags.innerHTML = [
     character.worldId = elements.characterWorldSelect.value;
     character.tags = splitTags(elements.characterTagsInput.value);
     character.description = bioTextToArray(elements.characterDescriptionInput.value);
+    character.textColors = {
+      name: normalizeHexColor(elements.characterNameColorInput.value, DEFAULT_TEXT_COLOR),
+      subtitle: normalizeHexColor(elements.characterSubtitleColorInput.value, DEFAULT_TEXT_COLOR),
+      tags: normalizeHexColor(elements.characterTagsColorInput.value, DEFAULT_TEXT_COLOR),
+      description: normalizeHexColor(elements.characterDescriptionColorInput.value, DEFAULT_TEXT_COLOR)
+    };
 
     if (elements.characterFeaturedCount) {
       elements.characterFeaturedCount.textContent = `${project.characters.filter((item) => item.featured).length}/3`;
@@ -4955,6 +5025,15 @@ elements.characterPreviewModalTags.innerHTML = [
     if (!character || !itemElement) return;
     const item = character.contents.find((entry) => entry.id === itemElement.dataset.characterContentId);
     if (!item) return;
+
+    const colorField = target.dataset.characterContentColor;
+    if (colorField) {
+      item.textColors = item.textColors || normalizeTextColorMap({}, ["type", "title", "content", "warning"]);
+      item.textColors[colorField] = normalizeHexColor(target.value, DEFAULT_TEXT_COLOR);
+      renderCharacterPreview();
+      scheduleAutosave();
+      return;
+    }
 
     const field = target.dataset.characterContentField;
     if (field === "content") item.content = bioTextToArray(target.value);
@@ -5181,7 +5260,7 @@ elements.characterPreviewModalTags.innerHTML = [
           <button type="button" data-delete-world-section>삭제</button>
         </div>
         <label>
-          <span>제목</span>
+          <span class="editable-field-heading"><span>제목</span><input class="field-color-input" type="color" value="${escapeHtml(normalizeHexColor(section.textColors?.title, DEFAULT_TEXT_COLOR))}" data-world-section-color="title" aria-label="추가 정보 제목 글자색"></span>
           <input
             type="text"
             value="${escapeHtml(section.title)}"
@@ -5190,7 +5269,7 @@ elements.characterPreviewModalTags.innerHTML = [
           >
         </label>
         <label>
-          <span>내용</span>
+          <span class="editable-field-heading"><span>내용</span><input class="field-color-input" type="color" value="${escapeHtml(normalizeHexColor(section.textColors?.content, DEFAULT_TEXT_COLOR))}" data-world-section-color="content" aria-label="추가 정보 내용 글자색"></span>
           <textarea
             rows="5"
             placeholder="문단을 나누려면 빈 줄을 하나 넣어주세요."
@@ -5332,6 +5411,10 @@ elements.characterPreviewModalTags.innerHTML = [
     elements.worldSubtitleInput.value = world.subtitle || "";
     elements.worldTagsInput.value = (world.tags || []).join(", ");
     elements.worldDescriptionInput.value = bioArrayToText(world.description);
+    elements.worldNameColorInput.value = normalizeHexColor(world.textColors?.name, DEFAULT_TEXT_COLOR);
+    elements.worldSubtitleColorInput.value = normalizeHexColor(world.textColors?.subtitle, DEFAULT_TEXT_COLOR);
+    elements.worldTagsColorInput.value = normalizeHexColor(world.textColors?.tags, DEFAULT_TEXT_COLOR);
+    elements.worldDescriptionColorInput.value = normalizeHexColor(world.textColors?.description, DEFAULT_TEXT_COLOR);
 
     const index = project.worlds.findIndex((item) => item.id === world.id);
     elements.moveWorldUpButton.disabled = index <= 0;
@@ -5363,7 +5446,7 @@ elements.characterPreviewModalTags.innerHTML = [
   function worldCardMarkup(world) {
     const related = charactersInWorld(world.id);
     const tags = (world.tags || []).slice(0, 3)
-      .map((tag) => `<span>${escapeHtml(tag)}</span>`)
+      .map((tag) => `<span style="${colorStyle(world.textColors?.tags)}">${escapeHtml(tag)}</span>`)
       .join("");
     const faces = related.slice(0, 4).map((character) => `
       <span class="world-face" title="${escapeHtml(character.name || "캐릭터")}">
@@ -5394,9 +5477,9 @@ elements.characterPreviewModalTags.innerHTML = [
           </div>
           <div class="world-card-body">
             <div class="world-card-meta"><span>${related.length} Characters</span><b aria-hidden="true">↗</b></div>
-            <h3>${escapeHtml(world.name || "이름 없는 세계관")}</h3>
-            <p>${escapeHtml(world.subtitle || "세계관 부제를 입력해 주세요.")}</p>
-            <div class="world-card-tags">${tags}</div>
+            <h3 style="${colorStyle(world.textColors?.name)}">${escapeHtml(world.name || "이름 없는 세계관")}</h3>
+            <p style="${colorStyle(world.textColors?.subtitle)}">${escapeHtml(world.subtitle || "세계관 부제를 입력해 주세요.")}</p>
+            <div class="world-card-tags" style="${colorStyle(world.textColors?.tags)}">${tags}</div>
           </div>
         </button>
       </article>
@@ -5456,14 +5539,15 @@ elements.characterPreviewModalTags.innerHTML = [
 
   function worldInfoSectionMarkup(section) {
     const title = escapeHtml(section.title || "세계관 정보");
+    const titleStyle = colorStyle(section.textColors?.title);
     const content = (section.content || []).map((paragraph) =>
-      `<p>${escapeHtml(paragraph)}</p>`
+      `<p style="${colorStyle(section.textColors?.content)}">${escapeHtml(paragraph)}</p>`
     ).join("");
 
     if (section.collapsible) {
       return `
         <details class="world-info-block world-info-block-collapsible">
-          <summary>${title}</summary>
+          <summary style="${titleStyle}">${title}</summary>
           <div class="world-info-block-content">${content}</div>
         </details>
       `;
@@ -5471,7 +5555,7 @@ elements.characterPreviewModalTags.innerHTML = [
 
     return `
       <article class="world-info-block">
-        <h3>${title}</h3>
+        <h3 style="${titleStyle}">${title}</h3>
         <div>${content}</div>
       </article>
     `;
@@ -5494,15 +5578,17 @@ elements.characterPreviewModalTags.innerHTML = [
 
     elements.worldPreviewModalTitle.textContent = world.name || "이름 없는 세계관";
     elements.worldPreviewModalSummary.textContent = world.subtitle || "";
+    applyElementColor(elements.worldPreviewModalTitle, world.textColors?.name);
+    applyElementColor(elements.worldPreviewModalSummary, world.textColors?.subtitle);
     elements.worldPreviewModalSummary.hidden = !world.subtitle;
     elements.worldPreviewModalTags.innerHTML = (world.tags || [])
-      .map((tag) => `<span>${escapeHtml(tag)}</span>`)
+      .map((tag) => `<span style="${colorStyle(world.textColors?.tags)}">${escapeHtml(tag)}</span>`)
       .join("");
     elements.worldPreviewModalTags.hidden = !(world.tags || []).length;
     renderSoundtrack(elements.worldPreviewSoundtrack, world);
 
     elements.worldPreviewModalDescription.innerHTML = (world.description || [])
-      .map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`)
+      .map((paragraph) => `<p style="${colorStyle(world.textColors?.description)}">${escapeHtml(paragraph)}</p>`)
       .join("");
     elements.worldPreviewModalDescription.hidden = !(world.description || []).length;
     elements.worldPreviewModalSections.innerHTML = (world.sections || [])
@@ -5522,8 +5608,8 @@ elements.characterPreviewModalTags.innerHTML = [
         <button class="world-character-button" type="button" data-preview-character="${escapeHtml(character.id)}">
           ${face}
           <span>
-            <strong>${escapeHtml(character.name || "이름 없는 캐릭터")}</strong>
-            <small>${escapeHtml(character.subtitle || "")}</small>
+            <strong style="${colorStyle(character.textColors?.name)}">${escapeHtml(character.name || "이름 없는 캐릭터")}</strong>
+            <small style="${colorStyle(character.textColors?.subtitle)}">${escapeHtml(character.subtitle || "")}</small>
           </span>
         </button>
       `;
@@ -5549,6 +5635,12 @@ elements.characterPreviewModalTags.innerHTML = [
     world.subtitle = elements.worldSubtitleInput.value.trim();
     world.tags = splitTags(elements.worldTagsInput.value);
     world.description = bioTextToArray(elements.worldDescriptionInput.value);
+    world.textColors = {
+      name: normalizeHexColor(elements.worldNameColorInput.value, DEFAULT_TEXT_COLOR),
+      subtitle: normalizeHexColor(elements.worldSubtitleColorInput.value, DEFAULT_TEXT_COLOR),
+      tags: normalizeHexColor(elements.worldTagsColorInput.value, DEFAULT_TEXT_COLOR),
+      description: normalizeHexColor(elements.worldDescriptionColorInput.value, DEFAULT_TEXT_COLOR)
+    };
 
     renderWorldList();
     renderCharacterWorldOptions();
@@ -5661,6 +5753,15 @@ elements.characterPreviewModalTags.innerHTML = [
       (entry) => entry.id === item.dataset.worldSectionId
     );
     if (!section) return;
+
+    const colorField = target.dataset.worldSectionColor;
+    if (colorField) {
+      section.textColors = section.textColors || normalizeTextColorMap({}, ["title", "content"]);
+      section.textColors[colorField] = normalizeHexColor(target.value, DEFAULT_TEXT_COLOR);
+      renderWorldPreview();
+      scheduleAutosave();
+      return;
+    }
 
     if (target.dataset.worldSectionField === "title") {
       section.title = target.value.trim();
@@ -5908,10 +6009,6 @@ elements.characterPreviewModalTags.innerHTML = [
   }
 
   function applyPreviewTheme() {
-    const textColor = normalizeHexColor(
-      project.site.textColor,
-      DEFAULT_TEXT_COLOR
-    );
     const themeColor = normalizeHexColor(
       project.site.themeColor,
       DEFAULT_THEME_COLOR
@@ -5930,7 +6027,6 @@ elements.characterPreviewModalTags.innerHTML = [
 
       target.style.setProperty("--text", DEFAULT_TEXT_COLOR);
       target.style.setProperty("--muted", "#aaa8b4");
-      target.style.setProperty("--user-text", textColor);
 
       target.style.setProperty("--theme", themeColor);
       target.style.setProperty("--violet", themeColor);
@@ -6133,6 +6229,9 @@ elements.characterPreviewModalTags.innerHTML = [
     elements.planTitleInput.value = plan.title || "";
     elements.planStatusInput.value = plan.status || "";
     elements.planDescriptionInput.value = bioArrayToText(plan.description);
+    elements.planTitleColorInput.value = normalizeHexColor(plan.textColors?.title, DEFAULT_TEXT_COLOR);
+    elements.planStatusColorInput.value = normalizeHexColor(plan.textColors?.status, DEFAULT_TEXT_COLOR);
+    elements.planDescriptionColorInput.value = normalizeHexColor(plan.textColors?.description, DEFAULT_TEXT_COLOR);
     const index = project.plans.findIndex((item) => item.id === plan.id);
     elements.movePlanUpButton.disabled = index <= 0;
     elements.movePlanDownButton.disabled = index < 0 || index >= project.plans.length - 1;
@@ -6154,6 +6253,11 @@ elements.characterPreviewModalTags.innerHTML = [
     plan.title = elements.planTitleInput.value.trim();
     plan.status = elements.planStatusInput.value.trim();
     plan.description = bioTextToArray(elements.planDescriptionInput.value);
+    plan.textColors = {
+      title: normalizeHexColor(elements.planTitleColorInput.value, DEFAULT_TEXT_COLOR),
+      status: normalizeHexColor(elements.planStatusColorInput.value, DEFAULT_TEXT_COLOR),
+      description: normalizeHexColor(elements.planDescriptionColorInput.value, DEFAULT_TEXT_COLOR)
+    };
     renderPlanList();
     renderPlanPreview();
     scheduleAutosave();
@@ -6220,12 +6324,12 @@ elements.characterPreviewModalTags.innerHTML = [
         <button class="archive-plan-card-button" type="button" data-preview-plan="${escapeHtml(plan.id)}">
           <div class="archive-plan-card-image">
             ${image}
-            ${plan.status ? `<span class="archive-plan-status">${escapeHtml(plan.status)}</span>` : ""}
+            ${plan.status ? `<span class="archive-plan-status" style="${colorStyle(plan.textColors?.status)}">${escapeHtml(plan.status)}</span>` : ""}
             <div class="archive-plan-platforms">${planPlatformDots(plan)}</div>
           </div>
           <div class="archive-plan-card-body">
-            <h3>${escapeHtml(plan.title || "제목 없는 계획")}</h3>
-            <p>${escapeHtml(description || "소개글을 입력해 주세요.")}</p>
+            <h3 style="${colorStyle(plan.textColors?.title)}">${escapeHtml(plan.title || "제목 없는 계획")}</h3>
+            <p style="${colorStyle(plan.textColors?.description)}">${escapeHtml(description || "소개글을 입력해 주세요.")}</p>
           </div>
         </button>
       </article>
@@ -6255,8 +6359,10 @@ elements.characterPreviewModalTags.innerHTML = [
     elements.planPreviewModalStatus.textContent = plan.status || "";
     elements.planPreviewModalStatus.hidden = !plan.status;
     elements.planPreviewModalTitle.textContent = plan.title || "제목 없는 계획";
+    applyElementColor(elements.planPreviewModalStatus, plan.textColors?.status);
+    applyElementColor(elements.planPreviewModalTitle, plan.textColors?.title);
     elements.planPreviewModalDescription.innerHTML = (plan.description || [])
-      .map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`)
+      .map((paragraph) => `<p style="${colorStyle(plan.textColors?.description)}">${escapeHtml(paragraph)}</p>`)
       .join("");
     elements.planPreviewModalDescription.hidden = !(plan.description || []).length;
     elements.planPreviewModal.showModal();
@@ -6278,14 +6384,18 @@ elements.characterPreviewModalTags.innerHTML = [
     elements.previewSiteDescription.textContent =
       project.site.description || "";
     elements.previewSiteDescription.hidden = !project.site.description;
+    applyElementColor(elements.previewSiteTitle, project.site.textColors?.title);
+    applyElementColor(elements.previewSiteDescription, project.site.textColors?.description);
 
     elements.previewCreatorName.textContent = creatorName;
     elements.previewCreatorHandle.textContent =
       project.creator.handle || "";
     elements.previewCreatorHandle.hidden = !project.creator.handle;
+    applyElementColor(elements.previewCreatorName, project.creator.textColors?.name);
+    applyElementColor(elements.previewCreatorHandle, project.creator.textColors?.handle);
 
     elements.previewCreatorBio.innerHTML = project.creator.bio
-      .map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`)
+      .map((paragraph) => `<p style="${colorStyle(project.creator.textColors?.bio)}">${escapeHtml(paragraph)}</p>`)
       .join("");
     elements.previewCreatorBio.hidden = project.creator.bio.length === 0;
 
@@ -6330,15 +6440,12 @@ elements.characterPreviewModalTags.innerHTML = [
   function populateFieldsFromProject() {
     elements.siteTitleInput.value = project.site.title || "";
     elements.siteDescriptionInput.value = project.site.description || "";
-    elements.siteTextColorInput.value = normalizeHexColor(
-      project.site.textColor,
-      DEFAULT_TEXT_COLOR
-    );
+    elements.siteTitleColorInput.value = normalizeHexColor(project.site.textColors?.title, DEFAULT_TEXT_COLOR);
+    elements.siteDescriptionColorInput.value = normalizeHexColor(project.site.textColors?.description, DEFAULT_TEXT_COLOR);
     elements.siteThemeColorInput.value = normalizeHexColor(
       project.site.themeColor,
       DEFAULT_THEME_COLOR
     );
-    elements.siteTextColorValue.value = elements.siteTextColorInput.value;
     elements.siteThemeColorValue.value = elements.siteThemeColorInput.value;
     elements.creatorNameInput.value = project.creator.name || "";
     elements.creatorHandleInput.value = project.creator.handle || "";
@@ -6346,6 +6453,9 @@ elements.characterPreviewModalTags.innerHTML = [
       project.creator.fallbackText || "";
     elements.creatorBioInput.value =
       bioArrayToText(project.creator.bio);
+    elements.creatorNameColorInput.value = normalizeHexColor(project.creator.textColors?.name, DEFAULT_TEXT_COLOR);
+    elements.creatorHandleColorInput.value = normalizeHexColor(project.creator.textColors?.handle, DEFAULT_TEXT_COLOR);
+    elements.creatorBioColorInput.value = normalizeHexColor(project.creator.textColors?.bio, DEFAULT_TEXT_COLOR);
   }
 
   function releaseCreatorBackgroundObjectUrl() {
@@ -7476,10 +7586,6 @@ elements.characterPreviewModalTags.innerHTML = [
   }
 
   function deployThemeStyleText() {
-    const textColor = normalizeHexColor(
-      project.site.textColor,
-      DEFAULT_TEXT_COLOR
-    );
     const themeColor = normalizeHexColor(
       project.site.themeColor,
       DEFAULT_THEME_COLOR
@@ -7489,7 +7595,6 @@ elements.characterPreviewModalTags.innerHTML = [
     return [
       `--text:${DEFAULT_TEXT_COLOR}`,
       `--muted:#aaa8b4`,
-      `--user-text:${textColor}`,
       `--theme:${themeColor}`,
       `--violet:${themeColor}`,
       `--accent:${themeColor}`,
@@ -7724,6 +7829,20 @@ elements.characterPreviewModalTags.innerHTML = [
         .replaceAll("'", "&#039;");
     }
 
+
+    function normalizeHexColor(value, fallback = "#f4f1ea") {
+      const normalized = String(value || "").trim().toLowerCase();
+      return /^#[0-9a-f]{6}$/.test(normalized) ? normalized : fallback;
+    }
+
+    function colorStyle(color) {
+      return `color:${normalizeHexColor(color)}`;
+    }
+
+    function applyElementColor(element, color) {
+      if (element) element.style.color = normalizeHexColor(color);
+    }
+
     function normalizeUrl(value) {
       const source = String(value || "").trim();
       if (!source) return "";
@@ -7884,7 +8003,6 @@ elements.characterPreviewModalTags.innerHTML = [
 
     function applyTheme() {
       const theme = String(project.site?.themeColor || "#a897ff");
-      const text = String(project.site?.textColor || "#f4f1ea");
       const hex = theme.replace("#", "");
       const red = Number.parseInt(hex.slice(0, 2), 16) || 0;
       const green = Number.parseInt(hex.slice(2, 4), 16) || 0;
@@ -7904,7 +8022,6 @@ elements.characterPreviewModalTags.innerHTML = [
         if (!target) return;
         target.style.setProperty("--text", "#f4f1ea");
         target.style.setProperty("--muted", "#aaa8b4");
-        target.style.setProperty("--user-text", text);
         target.style.setProperty("--theme", theme);
         target.style.setProperty("--violet", theme);
         target.style.setProperty("--accent", theme);
@@ -7923,10 +8040,17 @@ elements.characterPreviewModalTags.innerHTML = [
       const creator = project.creator || {};
       elements.previewSiteTitle.textContent = project.site?.title || "사이트 제목";
       elements.previewSiteDescription.textContent = project.site?.description || "";
+      elements.previewSiteDescription.hidden = !project.site?.description;
+      applyElementColor(elements.previewSiteTitle, project.site?.textColors?.title);
+      applyElementColor(elements.previewSiteDescription, project.site?.textColors?.description);
+
       elements.previewCreatorName.textContent = creator.name || "제작자 이름";
       elements.previewCreatorHandle.textContent = creator.handle || "";
+      elements.previewCreatorHandle.hidden = !creator.handle;
+      applyElementColor(elements.previewCreatorName, creator.textColors?.name);
+      applyElementColor(elements.previewCreatorHandle, creator.textColors?.handle);
       elements.previewCreatorBio.innerHTML = (creator.bio || [])
-        .map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`)
+        .map((paragraph) => `<p style="${colorStyle(creator.textColors?.bio)}">${escapeHtml(paragraph)}</p>`)
         .join("");
 
       const avatar = String(creator.avatar || "");
@@ -7999,8 +8123,8 @@ elements.characterPreviewModalTags.innerHTML = [
             </div>
             <div class="character-preview-card-body">
               <div class="character-preview-card-genres">${genres}</div>
-              <h3>${escapeHtml(character.name || "이름 없는 캐릭터")}</h3>
-              <p>${escapeHtml(character.subtitle || "")}</p>
+              <h3 style="${colorStyle(character.textColors?.name)}">${escapeHtml(character.name || "이름 없는 캐릭터")}</h3>
+              <p style="${colorStyle(character.textColors?.subtitle)}">${escapeHtml(character.subtitle || "")}</p>
               <span class="character-preview-card-more">상세 보기 <b aria-hidden="true">↗</b></span>
             </div>
           </button>
@@ -8011,7 +8135,7 @@ elements.characterPreviewModalTags.innerHTML = [
     function worldCardMarkup(world) {
       const related = charactersInWorld(world.id);
       const tags = (world.tags || []).slice(0, 3)
-        .map((tag) => `<span>${escapeHtml(tag)}</span>`)
+        .map((tag) => `<span style="${colorStyle(world.textColors?.tags)}">${escapeHtml(tag)}</span>`)
         .join("");
       const faces = related.slice(0, 4).map((character) => {
         const image = characterImageUrl(character);
@@ -8033,9 +8157,9 @@ elements.characterPreviewModalTags.innerHTML = [
             </div>
             <div class="world-card-body">
               <div class="world-card-meta"><span>${related.length} Characters</span><b aria-hidden="true">↗</b></div>
-              <h3>${escapeHtml(world.name || "이름 없는 세계관")}</h3>
-              <p>${escapeHtml(world.subtitle || "")}</p>
-              <div class="world-card-tags">${tags}</div>
+              <h3 style="${colorStyle(world.textColors?.name)}">${escapeHtml(world.name || "이름 없는 세계관")}</h3>
+              <p style="${colorStyle(world.textColors?.subtitle)}">${escapeHtml(world.subtitle || "")}</p>
+              <div class="world-card-tags" style="${colorStyle(world.textColors?.tags)}">${tags}</div>
             </div>
           </button>
         </article>
@@ -8073,12 +8197,12 @@ elements.characterPreviewModalTags.innerHTML = [
           <button class="archive-plan-card-button" type="button" data-preview-plan="${escapeHtml(plan.id)}">
             <div class="archive-plan-card-image">
               ${image}
-              ${plan.status ? `<span class="archive-plan-status">${escapeHtml(plan.status)}</span>` : ""}
+              ${plan.status ? `<span class="archive-plan-status" style="${colorStyle(plan.textColors?.status)}">${escapeHtml(plan.status)}</span>` : ""}
               <div class="archive-plan-platforms">${planPlatformDots(plan)}</div>
             </div>
             <div class="archive-plan-card-body">
-              <h3>${escapeHtml(plan.title || "제목 없는 계획")}</h3>
-              <p>${escapeHtml((plan.description || []).join(" ") || "소개글을 입력해 주세요.")}</p>
+              <h3 style="${colorStyle(plan.textColors?.title)}">${escapeHtml(plan.title || "제목 없는 계획")}</h3>
+              <p style="${colorStyle(plan.textColors?.description)}">${escapeHtml((plan.description || []).join(" ") || "소개글을 입력해 주세요.")}</p>
             </div>
           </button>
         </article>
@@ -8108,8 +8232,10 @@ elements.characterPreviewModalTags.innerHTML = [
       elements.planModalStatus.textContent = plan.status || "";
       elements.planModalStatus.hidden = !plan.status;
       elements.planModalTitle.textContent = plan.title || "제목 없는 계획";
+      applyElementColor(elements.planModalStatus, plan.textColors?.status);
+      applyElementColor(elements.planModalTitle, plan.textColors?.title);
       elements.planModalDescription.innerHTML = (plan.description || [])
-        .map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`)
+        .map((paragraph) => `<p style="${colorStyle(plan.textColors?.description)}">${escapeHtml(paragraph)}</p>`)
         .join("");
       elements.planModalDescription.hidden = !(plan.description || []).length;
       elements.planModal.showModal();
@@ -8488,15 +8614,17 @@ function renderCharacters() {
     function characterContentMarkup(item) {
       const type = item.type || (item.spoiler ? "스포일러" : "추가 정보");
       const title = item.title || "제목 없는 콘텐츠";
+      const typeStyle = colorStyle(item.textColors?.type);
+      const titleStyle = colorStyle(item.textColors?.title);
       const body = (item.content || []).map(
-        (paragraph) => `<p>${escapeHtml(paragraph)}</p>`
+        (paragraph) => `<p style="${colorStyle(item.textColors?.content)}">${escapeHtml(paragraph)}</p>`
       ).join("");
       if (item.spoiler) {
         return `
           <details class="character-preview-content-box is-spoiler">
             <summary>
               <span class="character-preview-content-icon">⚠</span>
-              <span><small>${escapeHtml(type)}</small><strong>${escapeHtml(title)}</strong><em>${escapeHtml(item.warning || "스포일러가 포함되어 있습니다.")}</em></span>
+              <span><small style="${typeStyle}">${escapeHtml(type)}</small><strong style="${titleStyle}">${escapeHtml(title)}</strong><em style="${colorStyle(item.textColors?.warning)}">${escapeHtml(item.warning || "스포일러가 포함되어 있습니다.")}</em></span>
               <b aria-hidden="true">⌄</b>
             </summary>
             <div class="character-preview-content-body">${body}</div>
@@ -8506,14 +8634,14 @@ function renderCharacters() {
       if (item.collapsible) {
         return `
           <details class="character-preview-content-box is-public is-collapsible">
-            <summary><span class="character-preview-content-icon">✦</span><span><small>${escapeHtml(type)}</small><strong>${escapeHtml(title)}</strong></span><b aria-hidden="true">⌄</b></summary>
+            <summary><span class="character-preview-content-icon">✦</span><span><small style="${typeStyle}">${escapeHtml(type)}</small><strong style="${titleStyle}">${escapeHtml(title)}</strong></span><b aria-hidden="true">⌄</b></summary>
             <div class="character-preview-content-body">${body}</div>
           </details>
         `;
       }
       return `
         <article class="character-preview-content-box is-public">
-          <header><span class="character-preview-content-icon">✦</span><span><small>${escapeHtml(type)}</small><strong>${escapeHtml(title)}</strong></span></header>
+          <header><span class="character-preview-content-icon">✦</span><span><small style="${typeStyle}">${escapeHtml(type)}</small><strong style="${titleStyle}">${escapeHtml(title)}</strong></span></header>
           <div class="character-preview-content-body">${body}</div>
         </article>
       `;
@@ -8532,6 +8660,8 @@ function renderCharacters() {
       const main = images[0] || "";
       elements.characterModalTitle.textContent = character.name || "이름 없는 캐릭터";
       elements.characterModalSummary.textContent = character.subtitle || "";
+      applyElementColor(elements.characterModalTitle, character.textColors?.name);
+      applyElementColor(elements.characterModalSummary, character.textColors?.subtitle);
       elements.characterModalSummary.hidden = !character.subtitle;
       elements.characterMainImage.hidden = !main;
       elements.characterMainImageFallback.hidden = Boolean(main);
@@ -8552,12 +8682,12 @@ function renderCharacters() {
       const genres = (character.genres || []).map(genreLabel);
       elements.characterKicker.textContent = genres.join(" · ") || "CHARACTER";
       elements.characterTags.innerHTML = [...genres, ...(character.tags || [])]
-        .map((tag) => `<span>${escapeHtml(tag)}</span>`)
+        .map((tag) => `<span style="${colorStyle(character.textColors?.tags)}">${escapeHtml(tag)}</span>`)
         .join("");
       elements.characterTags.hidden = !genres.length && !(character.tags || []).length;
       renderSoundtrack(elements.characterSoundtrack, character);
       elements.characterDescription.innerHTML = (character.description || [])
-        .map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`)
+        .map((paragraph) => `<p style="${colorStyle(character.textColors?.description)}">${escapeHtml(paragraph)}</p>`)
         .join("");
       elements.characterDescription.hidden = !(character.description || []).length;
       elements.characterPlatforms.innerHTML = (character.platforms || []).map((link) => {
@@ -8581,6 +8711,8 @@ function renderCharacters() {
         elements.characterWorldButton.dataset.previewWorld = world.id;
         elements.characterWorldName.textContent = world.name || "이름 없는 세계관";
         elements.characterWorldSummary.textContent = world.subtitle || "";
+        applyElementColor(elements.characterWorldName, world.textColors?.name);
+        applyElementColor(elements.characterWorldSummary, world.textColors?.subtitle);
       } else {
         delete elements.characterWorldButton.dataset.previewWorld;
       }
@@ -8594,12 +8726,13 @@ function renderCharacters() {
 
     function worldInfoMarkup(section) {
       const title = escapeHtml(section.title || "세계관 정보");
+      const titleStyle = colorStyle(section.textColors?.title);
       const content = (section.content || []).map(
-        (paragraph) => `<p>${escapeHtml(paragraph)}</p>`
+        (paragraph) => `<p style="${colorStyle(section.textColors?.content)}">${escapeHtml(paragraph)}</p>`
       ).join("");
       return section.collapsible
-        ? `<details class="world-info-block world-info-block-collapsible"><summary>${title}</summary><div class="world-info-block-content">${content}</div></details>`
-        : `<article class="world-info-block"><h3>${title}</h3><div>${content}</div></article>`;
+        ? `<details class="world-info-block world-info-block-collapsible"><summary style="${titleStyle}">${title}</summary><div class="world-info-block-content">${content}</div></details>`
+        : `<article class="world-info-block"><h3 style="${titleStyle}">${title}</h3><div>${content}</div></article>`;
     }
 
     function closeWorldModal() {
@@ -8622,14 +8755,16 @@ function renderCharacters() {
       }
       elements.worldModalTitle.textContent = world.name || "이름 없는 세계관";
       elements.worldModalSummary.textContent = world.subtitle || "";
+      applyElementColor(elements.worldModalTitle, world.textColors?.name);
+      applyElementColor(elements.worldModalSummary, world.textColors?.subtitle);
       elements.worldModalSummary.hidden = !world.subtitle;
       elements.worldModalTags.innerHTML = (world.tags || [])
-        .map((tag) => `<span>${escapeHtml(tag)}</span>`)
+        .map((tag) => `<span style="${colorStyle(world.textColors?.tags)}">${escapeHtml(tag)}</span>`)
         .join("");
       elements.worldModalTags.hidden = !(world.tags || []).length;
       renderSoundtrack(elements.worldSoundtrack, world);
       elements.worldModalDescription.innerHTML = (world.description || [])
-        .map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`)
+        .map((paragraph) => `<p style="${colorStyle(world.textColors?.description)}">${escapeHtml(paragraph)}</p>`)
         .join("");
       elements.worldModalDescription.hidden = !(world.description || []).length;
       elements.worldModalSections.innerHTML = (world.sections || [])
@@ -8643,7 +8778,7 @@ function renderCharacters() {
         const face = image
           ? `<img src="${escapeHtml(image)}" alt="">`
           : `<span class="world-character-face-fallback">${escapeHtml(String(character.name || "?").slice(0, 1))}</span>`;
-        return `<button class="world-character-button" type="button" data-preview-character="${escapeHtml(character.id)}">${face}<span><strong>${escapeHtml(character.name || "이름 없는 캐릭터")}</strong><small>${escapeHtml(character.subtitle || "")}</small></span></button>`;
+        return `<button class="world-character-button" type="button" data-preview-character="${escapeHtml(character.id)}">${face}<span><strong style="${colorStyle(character.textColors?.name)}">${escapeHtml(character.name || "이름 없는 캐릭터")}</strong><small style="${colorStyle(character.textColors?.subtitle)}">${escapeHtml(character.subtitle || "")}</small></span></button>`;
       }).join("");
       elements.worldModal.showModal();
       document.body.classList.add("world-preview-modal-open");
@@ -9922,7 +10057,7 @@ ZIP 파일 자체를 저장소에 올리지 말고, 각 ZIP의 압축을 푼 내
       updateCharacterPlatform(target);
       return;
     }
-    if (target.matches("[data-character-content-field]")) {
+    if (target.matches("[data-character-content-field], [data-character-content-color]")) {
       updateCharacterContentFromInput(target);
       return;
     }
@@ -10250,7 +10385,7 @@ elements.worldPreviewSoundtrack.addEventListener(
 
   elements.worldForm.addEventListener("input", (event) => {
     if (event.target === elements.worldImageInput) return;
-    if (event.target.matches("[data-world-section-field]")) {
+    if (event.target.matches("[data-world-section-field], [data-world-section-color]")) {
       updateWorldSectionFromInput(event.target);
       return;
     }

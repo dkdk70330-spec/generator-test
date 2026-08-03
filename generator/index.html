@@ -86,7 +86,7 @@
 
           <div class="portfolio-fields-grid">
             <label>
-              <span>제목</span>
+              <span class="editable-field-heading"><span>제목</span><input id="siteTitleColorInput" class="field-color-input" type="color" value="#f4f1ea" aria-label="사이트 제목 글자색" title="사이트 제목 글자색"></span>
               <input
                 id="siteTitleInput"
                 type="text"
@@ -96,7 +96,7 @@
             </label>
 
             <label>
-              <span>제작자 짧은 한줄 소개 (이름 위에 작게)</span>
+              <span class="editable-field-heading"><span>제작자 짧은 한줄 소개 (이름 위에 작게)</span><input id="siteDescriptionColorInput" class="field-color-input" type="color" value="#f4f1ea" aria-label="짧은 한줄 소개 글자색" title="짧은 한줄 소개 글자색"></span>
               <textarea
                 id="siteDescriptionInput"
                 rows="1"
@@ -106,13 +106,6 @@
             </label>
 
             <div class="site-color-controls" aria-label="사이트 색상">
-              <label class="site-color-control">
-                <span>입력 텍스트 색</span>
-                <span class="site-color-input-row">
-                  <input id="siteTextColorInput" type="color" value="#f4f1ea">
-                  <output id="siteTextColorValue" for="siteTextColorInput">#f4f1ea</output>
-                </span>
-              </label>
               <label class="site-color-control">
                 <span>전체 테마 색</span>
                 <span class="site-color-input-row">
@@ -228,7 +221,7 @@
 
           <div class="creator-identity-grid">
             <label>
-              <span>제작자 이름</span>
+              <span class="editable-field-heading"><span>제작자 이름</span><input id="creatorNameColorInput" class="field-color-input" type="color" value="#f4f1ea" aria-label="제작자 이름 글자색" title="제작자 이름 글자색"></span>
               <input
                 id="creatorNameInput"
                 type="text"
@@ -238,7 +231,7 @@
             </label>
 
             <label>
-              <span>아이디</span>
+              <span class="editable-field-heading"><span>아이디</span><input id="creatorHandleColorInput" class="field-color-input" type="color" value="#f4f1ea" aria-label="제작자 아이디 글자색" title="제작자 아이디 글자색"></span>
               <input
                 id="creatorHandleInput"
                 type="text"
@@ -251,7 +244,7 @@
           <input id="creatorFallbackInput" type="hidden">
 
           <label>
-            <span>소개</span>
+            <span class="editable-field-heading"><span>소개</span><input id="creatorBioColorInput" class="field-color-input" type="color" value="#f4f1ea" aria-label="제작자 소개 글자색" title="제작자 소개 글자색"></span>
             <textarea
               id="creatorBioInput"
               rows="6"
@@ -413,7 +406,7 @@
 
             <div class="world-title-grid">
               <label>
-                <span>세계관 이름</span>
+                <span class="editable-field-heading"><span>세계관 이름</span><input id="worldNameColorInput" class="field-color-input" type="color" value="#f4f1ea" aria-label="세계관 이름 글자색" title="세계관 이름 글자색"></span>
                 <input
                   id="worldNameInput"
                   type="text"
@@ -422,7 +415,7 @@
               </label>
 
               <label>
-                <span>부제</span>
+                <span class="editable-field-heading"><span>부제</span><input id="worldSubtitleColorInput" class="field-color-input" type="color" value="#f4f1ea" aria-label="세계관 부제 글자색" title="세계관 부제 글자색"></span>
                 <input
                   id="worldSubtitleInput"
                   type="text"
@@ -432,7 +425,7 @@
             </div>
 
             <label>
-              <span>태그</span>
+              <span class="editable-field-heading"><span>태그</span><input id="worldTagsColorInput" class="field-color-input" type="color" value="#f4f1ea" aria-label="세계관 태그 글자색" title="세계관 태그 글자색"></span>
               <input
                 id="worldTagsInput"
                 type="text"
@@ -442,7 +435,7 @@
             </label>
 
             <label>
-              <span>세계관 소개</span>
+              <span class="editable-field-heading"><span>세계관 소개</span><input id="worldDescriptionColorInput" class="field-color-input" type="color" value="#f4f1ea" aria-label="세계관 소개 글자색" title="세계관 소개 글자색"></span>
               <textarea
                 id="worldDescriptionInput"
                 rows="7"
@@ -604,12 +597,12 @@
 
             <div class="character-identity-grid">
               <label>
-                <span>캐릭터 이름</span>
+                <span class="editable-field-heading"><span>캐릭터 이름</span><input id="characterNameColorInput" class="field-color-input" type="color" value="#f4f1ea" aria-label="캐릭터 이름 글자색" title="캐릭터 이름 글자색"></span>
                 <input id="characterNameInput" type="text" placeholder="예: 리라 베일">
               </label>
 
               <label>
-                <span>부제</span>
+                <span class="editable-field-heading"><span>부제</span><input id="characterSubtitleColorInput" class="field-color-input" type="color" value="#f4f1ea" aria-label="캐릭터 부제 글자색" title="캐릭터 부제 글자색"></span>
                 <input id="characterSubtitleInput" type="text" placeholder="예: 별을 잃어버린 천문학자">
               </label>
             </div>
@@ -647,13 +640,13 @@
             </details>
 
             <label>
-              <span>태그</span>
+              <span class="editable-field-heading"><span>태그</span><input id="characterTagsColorInput" class="field-color-input" type="color" value="#f4f1ea" aria-label="캐릭터 태그 글자색" title="캐릭터 태그 글자색"></span>
               <input id="characterTagsInput" type="text" placeholder="천문학자, 쌍방구원, 느린관계">
               <small class="field-help">쉼표로 구분해 주세요.</small>
             </label>
 
             <label>
-              <span>캐릭터 소개</span>
+              <span class="editable-field-heading"><span>캐릭터 소개</span><input id="characterDescriptionColorInput" class="field-color-input" type="color" value="#f4f1ea" aria-label="캐릭터 소개 글자색" title="캐릭터 소개 글자색"></span>
               <textarea id="characterDescriptionInput" rows="7" placeholder="문단을 나누려면 빈 줄을 하나 넣어주세요."></textarea>
             </label>
 
@@ -765,17 +758,17 @@
 
                 <div class="plan-identity-grid">
                   <label>
-                    <span>제목</span>
+                    <span class="editable-field-heading"><span>제목</span><input id="planTitleColorInput" class="field-color-input" type="color" value="#f4f1ea" aria-label="PLAN 제목 글자색" title="PLAN 제목 글자색"></span>
                     <input id="planTitleInput" type="text" maxlength="100" placeholder="예: 여름밤의 도망자">
                   </label>
                   <label>
-                    <span>제작 현황</span>
+                    <span class="editable-field-heading"><span>제작 현황</span><input id="planStatusColorInput" class="field-color-input" type="color" value="#f4f1ea" aria-label="PLAN 제작 현황 글자색" title="PLAN 제작 현황 글자색"></span>
                     <input id="planStatusInput" type="text" maxlength="80" placeholder="예: 캐릭터 이미지 작업 중">
                   </label>
                 </div>
 
                 <label>
-                  <span>소개글</span>
+                  <span class="editable-field-heading"><span>소개글</span><input id="planDescriptionColorInput" class="field-color-input" type="color" value="#f4f1ea" aria-label="PLAN 소개글 글자색" title="PLAN 소개글 글자색"></span>
                   <textarea id="planDescriptionInput" rows="7" maxlength="1500" placeholder="카드를 선택했을 때 작은 팝업에 표시할 소개글입니다. 문단을 나누려면 빈 줄을 하나 넣어주세요."></textarea>
                 </label>
 

@@ -6567,51 +6567,6 @@ textarea {
   }
 }
 
-/* ---------------------------------------------------------
-   User-entered text color
-   Theme color controls accents/surfaces only. System labels stay neutral.
-   --------------------------------------------------------- */
-:root {
-  --user-text: #f4f1ea;
-}
-
-#previewSiteTitle,
-#previewCreatorName,
-.hero-stats strong,
-.character-preview-card-body h3,
-.world-card-body h3,
-.archive-plan-card-body h3,
-.world-modal-content h2,
-.world-info-block h3,
-.world-character-button strong,
-.character-preview-identity h2,
-.character-preview-content-box strong,
-.character-preview-world-button strong,
-.plan-preview-modal-content h2,
-.soundtrack-heading strong {
-  color: var(--user-text, var(--text));
-}
-
-#previewSiteDescription,
-#previewCreatorHandle,
-#previewCreatorBio,
-.character-preview-card-body p,
-.world-card-body > p,
-.archive-plan-status,
-.archive-plan-card-body p,
-.world-modal-summary,
-.world-modal-description,
-.world-info-block p,
-.world-info-block-content,
-.world-character-button small,
-.character-preview-identity p,
-.character-preview-description,
-.character-preview-content-body p,
-.character-preview-world-button em,
-.plan-preview-modal-status,
-.plan-preview-modal-description {
-  color: color-mix(in srgb, var(--user-text, var(--text)) 76%, transparent);
-}
 
 .archive-world-sort {
   margin-left: auto !important;
@@ -6628,5 +6583,124 @@ textarea {
   .archive-sort-control select {
     min-width: 74px;
     font-size: .72rem;
+  }
+}
+
+
+/* =========================================================
+   Individual text colors + layout containment fixes
+   ========================================================= */
+.editable-field-heading {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: .55rem;
+  color: var(--muted);
+  font-size: .78rem;
+  font-weight: 800;
+}
+
+.editable-field-heading > span:first-child {
+  min-width: 0;
+}
+
+.field-color-input {
+  flex: 0 0 28px;
+  width: 28px;
+  min-width: 28px;
+  height: 24px;
+  min-height: 24px;
+  padding: 2px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.site-color-controls {
+  grid-template-columns: minmax(112px, 1fr);
+}
+
+/* The preview must stay inside its grid track. Horizontal overflow belongs
+   to the preview viewport, never on top of the editor. */
+.generator-layout {
+  grid-template-columns: minmax(480px, .78fr) minmax(0, 1.22fr);
+}
+
+.preview-panel {
+  width: 100%;
+  max-width: calc(var(--preview-panel-width) + 2.8rem);
+  min-width: 0;
+  overflow: hidden;
+}
+
+.preview-viewport {
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+}
+
+@media (max-width: 1480px) {
+  .generator-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .preview-panel {
+    position: static;
+    width: 100%;
+    max-width: none;
+    justify-self: stretch;
+  }
+}
+
+/* Keep sort controls in the same heading row even in narrow previews. */
+.character-preview-heading,
+.stardust-world-preview .world-preview-section-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+}
+
+.archive-heading-actions {
+  display: flex;
+  min-width: max-content;
+  align-items: center;
+  flex-direction: row;
+  gap: .5rem;
+}
+
+.archive-sort-control {
+  flex: 0 0 auto;
+}
+
+@media (max-width: 620px) {
+  .character-preview-heading,
+  .stardust-world-preview .world-preview-section-heading,
+  .character-archive-heading {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    flex-direction: unset;
+  }
+
+  .archive-heading-actions {
+    align-items: center;
+    flex-direction: row;
+    gap: .35rem;
+  }
+
+  .archive-heading-actions > p {
+    display: none;
+  }
+}
+
+@container live-preview (max-width: 520px) {
+  .character-preview-heading,
+  .stardust-world-preview .world-preview-section-heading {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .archive-sort-control select {
+    min-width: 72px;
+    max-width: 82px;
   }
 }
