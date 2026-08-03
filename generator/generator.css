@@ -7151,3 +7151,116 @@ textarea {
     grid-column: auto;
   }
 }
+
+/* =========================================================
+   Requested fix: world cards match character cards exactly
+   + compact character search
+   ========================================================= */
+
+/* Keep visually hidden labels out of the flex layout.
+   The previous stylesheet only defined .sr-only inside one platform rail,
+   so the search label text itself was being rendered and making the box tall. */
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* HOME: recommended worlds use the same grid/card/image measurements
+   as recommended characters. */
+#archiveTabHome:checked ~ .archive-site-shell #previewWorldGrid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .65rem;
+}
+
+#archiveTabHome:checked ~ .archive-site-shell #previewWorldGrid .world-card,
+#archiveTabHome:checked ~ .archive-site-shell #previewWorldGrid .world-card-button {
+  align-self: start;
+  height: auto;
+  min-height: 0;
+}
+
+#archiveTabHome:checked ~ .archive-site-shell #previewWorldGrid .world-card-image {
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  aspect-ratio: 4 / 4.55;
+}
+
+/* WORLD: world cards use the same columns, gap, card height behavior,
+   and 4:5 thumbnail ratio as the CHARACTER archive. */
+#archiveTabWorld:checked ~ .archive-site-shell .world-grid {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: .72rem;
+}
+
+#archiveTabWorld:checked ~ .archive-site-shell .world-card,
+#archiveTabWorld:checked ~ .archive-site-shell .world-card-button {
+  align-self: start;
+  height: auto;
+  min-height: 0;
+}
+
+#archiveTabWorld:checked ~ .archive-site-shell .world-card-image {
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  aspect-ratio: 4 / 5;
+}
+
+@container live-preview (max-width: 900px) {
+  #archiveTabWorld:checked ~ .archive-site-shell .world-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@container live-preview (max-width: 720px) {
+  #archiveTabWorld:checked ~ .archive-site-shell .world-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@container live-preview (max-width: 520px) {
+  #archiveTabHome:checked ~ .archive-site-shell #previewWorldGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: .4rem;
+  }
+
+  #archiveTabWorld:checked ~ .archive-site-shell .world-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* CHARACTER search: remove the global input minimum height from the
+   borderless inner input and keep the surrounding search shell compact. */
+#archiveTabCharacter:checked ~ .archive-site-shell .controls {
+  padding: .55rem;
+  margin-bottom: .8rem;
+}
+
+#archiveTabCharacter:checked ~ .archive-site-shell .search-box {
+  min-height: 40px;
+  padding: .45rem .7rem;
+  gap: .55rem;
+}
+
+#archiveTabCharacter:checked ~ .archive-site-shell .search-box input {
+  height: auto;
+  min-height: 0;
+  padding: 0;
+  line-height: 1.35;
+}
+
+/* When there are no visible filter chips, do not reserve an empty second row. */
+#archiveTabCharacter:checked ~ .archive-site-shell .filter-row:empty,
+#archiveTabCharacter:checked ~ .archive-site-shell .filter-row:not(:has(.filter-chip, .filter-more)) {
+  display: none;
+  margin-top: 0;
+}
