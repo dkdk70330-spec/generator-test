@@ -6372,3 +6372,62 @@ textarea {
     --archive-nav-item-height: 48px;
   }
 }
+
+/* ---------------------------------------------------------
+   Mobile HOME recommendations: three items, one complete row
+   Keep the full WORLD / CHARACTER archives at their existing columns.
+   --------------------------------------------------------- */
+@media (max-width: 520px) {
+  #archiveTabHome:checked ~ .archive-site-shell .character-featured-grid,
+  #archiveTabHome:checked ~ .archive-site-shell #previewWorldGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: .4rem;
+  }
+
+  /* Undo the older mobile rule that hid the third recommended world. */
+  #archiveTabHome:checked ~ .archive-site-shell #previewWorldGrid > .world-card:nth-child(3) {
+    display: block !important;
+  }
+
+  #archiveTabHome:checked ~ .archive-site-shell .character-preview-card-body,
+  #archiveTabHome:checked ~ .archive-site-shell .world-card-body {
+    padding: .45rem;
+  }
+
+  #archiveTabHome:checked ~ .archive-site-shell .character-preview-card-body h3,
+  #archiveTabHome:checked ~ .archive-site-shell .world-card-body h3 {
+    font-size: .7rem;
+  }
+
+  #archiveTabHome:checked ~ .archive-site-shell .character-preview-card-body p,
+  #archiveTabHome:checked ~ .archive-site-shell .world-card-body > p {
+    font-size: .54rem;
+  }
+}
+
+@container live-preview (max-width: 520px) {
+  #archiveTabHome:checked ~ .archive-site-shell .character-featured-grid,
+  #archiveTabHome:checked ~ .archive-site-shell #previewWorldGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: .4rem;
+  }
+
+  #archiveTabHome:checked ~ .archive-site-shell #previewWorldGrid > .world-card:nth-child(3) {
+    display: block !important;
+  }
+
+  #archiveTabHome:checked ~ .archive-site-shell .character-preview-card-body,
+  #archiveTabHome:checked ~ .archive-site-shell .world-card-body {
+    padding: .45rem;
+  }
+
+  #archiveTabHome:checked ~ .archive-site-shell .character-preview-card-body h3,
+  #archiveTabHome:checked ~ .archive-site-shell .world-card-body h3 {
+    font-size: .7rem;
+  }
+
+  #archiveTabHome:checked ~ .archive-site-shell .character-preview-card-body p,
+  #archiveTabHome:checked ~ .archive-site-shell .world-card-body > p {
+    font-size: .54rem;
+  }
+}
