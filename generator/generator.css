@@ -6934,3 +6934,35 @@ textarea {
     border-radius: 13px;
   }
 }
+
+/* ---------------------------------------------------------
+   Mobile HOME profile artwork fill
+   The portrait becomes a full-height artwork rail so no empty
+   column remains below it when the profile copy is taller.
+   --------------------------------------------------------- */
+@container live-preview (max-width: 720px) {
+  #archiveTabHome:checked ~ .archive-site-shell .archive-profile-panel .preview-profile {
+    align-items: stretch;
+  }
+
+  #archiveTabHome:checked ~ .archive-site-shell .archive-profile-panel .preview-avatar {
+    align-self: stretch;
+    height: 100%;
+    min-height: 100%;
+    aspect-ratio: auto;
+  }
+
+  #archiveTabHome:checked ~ .archive-site-shell .archive-profile-panel .preview-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+@container live-preview (max-width: 520px) {
+  #archiveTabHome:checked ~ .archive-site-shell .archive-profile-panel .preview-avatar {
+    height: 100%;
+    min-height: 100%;
+    aspect-ratio: auto;
+  }
+}
