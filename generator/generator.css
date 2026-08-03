@@ -5744,3 +5744,598 @@ body.plan-preview-modal-open { overflow: hidden; }
 #archiveTabCharacter:checked ~ .archive-site-shell #previewCharacterToggleWrap {
   display: none !important;
 }
+
+
+/* =========================================================
+   Mobile editor and exported-site hardening
+   ========================================================= */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+button,
+label,
+summary,
+input,
+select,
+textarea {
+  touch-action: manipulation;
+}
+
+@media (pointer: coarse) {
+  .file-label {
+    min-height: 48px;
+    align-items: center;
+    justify-content: center;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .image-drop-zone {
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .image-input-hint {
+    font-size: 0;
+  }
+
+  .image-input-hint::after {
+    content: "이미지 영역이나 파일 선택 버튼을 눌러 업로드하세요.";
+    font-size: .72rem;
+  }
+}
+
+@media (max-width: 760px) {
+  body {
+    width: 100%;
+    overflow-x: hidden;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .app-header,
+  .generator-layout {
+    width: min(calc(100% - 16px), 1880px);
+  }
+
+  .app-header {
+    padding: calc(.85rem + env(safe-area-inset-top)) 0 1rem;
+    gap: .8rem;
+  }
+
+  .app-header h1 {
+    font-size: clamp(1.65rem, 8vw, 2.35rem);
+    line-height: 1.08;
+  }
+
+  .app-header > div > p:last-child {
+    margin-top: .35rem;
+    font-size: .78rem;
+  }
+
+  .header-actions {
+    display: grid;
+    width: 100%;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .45rem;
+  }
+
+  .header-actions > *,
+  .header-actions .secondary-button,
+  .header-actions .import-project-button,
+  .backup-menu,
+  .backup-menu > summary {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .header-actions .secondary-button,
+  .header-actions .import-project-button,
+  .backup-menu > summary {
+    min-height: 46px;
+    padding: .6rem .72rem;
+  }
+
+  .backup-menu-panel {
+    position: fixed;
+    z-index: 120;
+    inset: auto 8px calc(8px + env(safe-area-inset-bottom));
+    width: auto;
+    max-height: min(72dvh, 620px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border-radius: 18px;
+  }
+
+  .generator-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: .75rem;
+    margin: .8rem auto 2rem;
+  }
+
+  .editor-panel,
+  .preview-panel {
+    width: 100%;
+    min-width: 0;
+    border-radius: 18px;
+  }
+
+  .editor-panel {
+    padding: .72rem;
+  }
+
+  .editor-panel > h2 {
+    margin: .1rem 0 .65rem;
+    font-size: 1.25rem;
+  }
+
+  .major-editor-fold-summary,
+  .editor-fold-summary {
+    min-height: 54px;
+    padding: .75rem .15rem;
+  }
+
+  .major-editor-fold-summary strong,
+  .editor-fold-summary strong {
+    font-size: .9rem;
+  }
+
+  .major-editor-fold-summary small,
+  .editor-fold-summary small {
+    font-size: .65rem;
+    line-height: 1.35;
+  }
+
+  .major-editor-fold-body,
+  .editor-fold-body {
+    min-width: 0;
+  }
+
+  fieldset + fieldset,
+  .world-editor-section,
+  .character-editor-section,
+  .plan-editor-section {
+    margin-top: 1.2rem;
+    padding-top: 1.15rem;
+  }
+
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+
+  input,
+  select {
+    min-height: 48px;
+  }
+
+  textarea {
+    min-height: 110px;
+  }
+
+  .primary-button,
+  .secondary-button,
+  .danger-button,
+  .character-danger-button,
+  .plan-danger-button {
+    min-height: 44px;
+  }
+
+  .portfolio-fields-grid,
+  .creator-identity-grid,
+  .site-color-controls,
+  .social-entry,
+  .world-title-grid,
+  .character-identity-grid,
+  .character-world-featured-grid,
+  .plan-identity-grid,
+  .music-editor-grid,
+  .character-content-editor-item {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .portfolio-fields-grid > label,
+  .creator-identity-grid > label,
+  .character-identity-grid > label,
+  .character-world-featured-grid > label,
+  .plan-identity-grid > label {
+    margin-top: 0;
+  }
+
+  .avatar-editor,
+  .profile-background-editor,
+  .world-image-editor,
+  .plan-image-editor {
+    grid-template-columns: minmax(0, 1fr);
+    gap: .75rem;
+    align-items: start;
+  }
+
+  .avatar-preview {
+    width: 92px;
+    border-radius: 23px;
+  }
+
+  .profile-background-editor-preview,
+  .world-image-editor-preview,
+  .plan-image-editor-preview {
+    width: 100%;
+    max-width: 230px;
+  }
+
+  .file-label {
+    width: 100%;
+    min-height: 48px;
+    justify-content: center;
+    border-radius: 13px;
+  }
+
+  .image-drop-zone {
+    padding: .7rem;
+    border: 1px dashed var(--line-strong);
+    border-radius: 15px;
+  }
+
+  .image-drop-zone:focus-within,
+  .image-drop-zone.is-image-target-active {
+    border-color: var(--accent);
+  }
+
+  .image-input-hint,
+  .field-help {
+    overflow-wrap: anywhere;
+  }
+
+  .world-editor-layout,
+  .character-editor-layout,
+  .plan-editor-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: .65rem;
+  }
+
+  .world-editor-sidebar,
+  .character-editor-sidebar,
+  .plan-editor-sidebar {
+    padding: .45rem;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+  }
+
+  .world-editor-list,
+  .character-editor-list,
+  .plan-editor-list {
+    display: flex;
+    min-width: max-content;
+    gap: .4rem;
+    overflow: visible;
+  }
+
+  .world-editor-list-item,
+  .character-editor-list-item,
+  .plan-editor-list-item {
+    flex: 0 0 min(170px, 72vw);
+  }
+
+  .world-form,
+  .character-form,
+  .plan-form {
+    padding: .72rem;
+  }
+
+  .world-form-actions,
+  .character-form-actions,
+  .plan-form-actions,
+  .editor-fold-action-row,
+  .major-editor-action-row {
+    align-items: stretch;
+    flex-wrap: wrap;
+    gap: .4rem;
+  }
+
+  .world-form-actions > button,
+  .character-form-actions > button,
+  .plan-form-actions > button {
+    flex: 1 1 88px;
+  }
+
+  .character-platform-editor-list,
+  .filter-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .character-platform-editor-item {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .character-option-grid,
+  .plan-platform-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .character-option-item,
+  .plan-platform-option {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .social-entry .primary-button {
+    width: 100%;
+  }
+
+  .preview-panel {
+    position: static;
+    padding: .6rem;
+  }
+
+  .preview-toolbar {
+    grid-template-columns: minmax(0, 1fr);
+    gap: .45rem;
+  }
+
+  .preview-width-control {
+    display: none;
+  }
+
+  .save-status {
+    overflow-wrap: anywhere;
+  }
+
+  .preview-viewport {
+    width: 100%;
+    overflow: visible;
+    padding: 0;
+  }
+
+  .preview-canvas {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    margin: 0;
+  }
+
+  .archive-site-shell {
+    width: 100%;
+    min-height: 0;
+    border-radius: 16px;
+  }
+
+  .archive-site-header {
+    position: sticky;
+    top: 0;
+    padding-inline: .72rem;
+  }
+
+  .archive-site-brand {
+    min-width: 0;
+    max-width: 46%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .archive-site-nav {
+    min-width: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .archive-site-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .archive-site-nav label {
+    flex: 0 0 auto;
+    min-width: 66px;
+    min-height: 48px;
+  }
+
+  .archive-pages {
+    min-width: 0;
+    padding: .62rem;
+  }
+
+  .archive-profile-panel,
+  .archive-featured-panel,
+  .archive-world-panel,
+  .stardust-character-preview,
+  .stardust-world-preview {
+    border-radius: 14px;
+  }
+
+  .archive-profile-panel .preview-profile {
+    grid-template-columns: 70px minmax(0, 1fr);
+    gap: .72rem;
+    padding: .85rem;
+  }
+
+  .archive-profile-panel .preview-avatar {
+    width: 70px;
+    border-radius: 18px;
+  }
+
+  .archive-profile-panel .preview-profile h3 {
+    font-size: clamp(1.45rem, 8vw, 2.15rem);
+  }
+
+  .archive-pages .character-featured-grid,
+  .archive-pages .world-grid,
+  #archiveTabWorld:checked ~ .archive-site-shell .world-grid,
+  #archiveTabCharacter:checked ~ .archive-site-shell .character-preview-grid,
+  .archive-plan-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .48rem;
+  }
+
+  .archive-pages .character-preview-card-body,
+  .archive-pages .world-card-body,
+  .archive-plan-card-body {
+    padding: .55rem;
+  }
+
+  .archive-pages .character-preview-card-body h3,
+  .archive-pages .world-card-body h3,
+  .archive-plan-card-body h3 {
+    font-size: .78rem;
+  }
+
+  .archive-pages .character-preview-card-body p,
+  .archive-pages .world-card-body > p,
+  .archive-plan-card-body p {
+    font-size: .6rem;
+  }
+
+  .controls {
+    padding: .65rem;
+  }
+
+  .chip-list {
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .chip-list::-webkit-scrollbar {
+    display: none;
+  }
+
+  .filter-chip,
+  .filter-more {
+    min-height: 40px;
+  }
+
+  .world-modal,
+  .character-preview-modal,
+  .plan-preview-modal,
+  .guide-dialog,
+  .character-bulk-dialog {
+    width: 100%;
+    max-width: none;
+    max-height: calc(100dvh - env(safe-area-inset-top));
+    margin: auto 0 0;
+    border-radius: 20px 20px 0 0;
+  }
+
+  .world-modal-shell,
+  .character-preview-modal-shell,
+  .plan-preview-modal-shell {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .world-cover-panel,
+  .character-preview-gallery {
+    padding: .7rem;
+  }
+
+  .world-cover-panel img,
+  .world-cover-fallback,
+  .character-preview-main-image-wrap img,
+  .plan-preview-modal-image-wrap,
+  .plan-preview-modal-image-fallback {
+    min-height: 240px;
+    max-height: 48dvh;
+  }
+
+  .world-modal-content,
+  .character-preview-modal-content,
+  .plan-preview-modal-content {
+    max-height: none;
+    padding: 1.15rem;
+    overflow: visible;
+  }
+
+  .world-modal-content h2,
+  .character-preview-identity h2,
+  .plan-preview-modal-content h2 {
+    font-size: clamp(1.8rem, 10vw, 2.8rem);
+  }
+
+  .character-preview-modal,
+  .world-modal,
+  .plan-preview-modal {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .character-bulk-dialog-shell {
+    padding: .75rem;
+  }
+
+  .character-bulk-dialog-header,
+  .character-bulk-dialog-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .character-bulk-header-actions,
+  .character-bulk-dialog-actions > div {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .exported-site-shell {
+    width: min(calc(100% - 10px), 1440px);
+    margin: 5px auto;
+  }
+}
+
+@media (max-width: 430px) {
+  .app-header,
+  .generator-layout {
+    width: min(calc(100% - 10px), 1880px);
+  }
+
+  .header-actions {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .character-option-grid,
+  .plan-platform-list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .archive-site-header {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 0;
+    padding-top: .55rem;
+  }
+
+  .archive-site-brand {
+    max-width: 100%;
+    min-height: 38px;
+  }
+
+  .archive-site-nav {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .archive-site-nav label {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .archive-profile-panel .preview-profile {
+    display: grid;
+    grid-template-columns: 62px minmax(0, 1fr);
+  }
+
+  .archive-profile-panel .preview-avatar {
+    width: 62px;
+  }
+
+  .archive-pages .character-featured-grid,
+  .archive-pages .world-grid,
+  #archiveTabWorld:checked ~ .archive-site-shell .world-grid,
+  #archiveTabCharacter:checked ~ .archive-site-shell .character-preview-grid,
+  .archive-plan-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .archive-plan-status {
+    max-width: calc(100% - .7rem);
+    top: .35rem;
+    left: .35rem;
+  }
+}

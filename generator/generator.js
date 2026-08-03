@@ -7014,6 +7014,70 @@ elements.characterPreviewModalTags.innerHTML = [
     }
   }
 
+  const IMAGE_TARGET_FILE_INPUT_IDS = {
+    avatar: "avatarInput",
+    "profile-background": "profileBackgroundInput",
+    world: "worldImageInput",
+    character: "characterImageInput",
+    plan: "planImageInput"
+  };
+
+  function fileInputForImageZone(zone) {
+    const inputId = IMAGE_TARGET_FILE_INPUT_IDS[
+      zone?.dataset?.imageDropTarget || ""
+    ];
+    const input = inputId ? document.getElementById(inputId) : null;
+    return input instanceof HTMLInputElement && input.type === "file"
+      ? input
+      : null;
+  }
+
+  function openFilePicker(input) {
+    if (!(input instanceof HTMLInputElement) || input.type !== "file") return;
+    if (input.disabled) return;
+
+    // 같은 파일을 다시 선택해도 change 이벤트가 발생하도록 먼저 비웁니다.
+    input.value = "";
+    input.click();
+  }
+
+  function initializeMobileFilePickers() {
+    // iOS Safari를 포함한 모바일 브라우저에서 label-for 연결이 간헐적으로
+    // 무시되는 경우를 피하기 위해 사용자 클릭 안에서 파일 입력을 직접 엽니다.
+    document.addEventListener("click", (event) => {
+      const label = event.target.closest("label[for]");
+      if (!label) return;
+
+      const input = document.getElementById(label.htmlFor);
+      if (!(input instanceof HTMLInputElement) || input.type !== "file") return;
+
+      event.preventDefault();
+      setActiveImageDropTarget(label.closest("[data-image-drop-target]"));
+      openFilePicker(input);
+    });
+
+    elements.imageDropZones.forEach((zone) => {
+      zone.addEventListener("click", (event) => {
+        const mobileLike =
+          window.matchMedia("(pointer: coarse)").matches ||
+          window.matchMedia("(max-width: 900px)").matches;
+
+        if (!mobileLike || event.defaultPrevented) return;
+        if (
+          event.target.closest(
+            "button, a, input, select, textarea, label, summary, [role='button']"
+          )
+        ) return;
+
+        const input = fileInputForImageZone(zone);
+        if (!input) return;
+
+        setActiveImageDropTarget(zone);
+        openFilePicker(input);
+      });
+    });
+  }
+
   function initializeImageDropZones() {
     elements.imageDropZones.forEach((zone) => {
       zone.addEventListener("focus", () => setActiveImageDropTarget(zone));
@@ -10327,6 +10391,7 @@ elements.netlifyGuideDialog.addEventListener(
   async function initialize() {
     restorePreviewWidth();
     initializeImageDropZones();
+    initializeMobileFilePickers();
     loadProjectFromStorage();
     renderServiceOptions();
     selectedWorldId = project.worlds[0]?.id || "";
