@@ -6444,3 +6444,80 @@ textarea {
     aspect-ratio: 1 / 1;
   }
 }
+
+/* -------------------------------------------------
+   Mobile profile balance fix
+   Keep the avatar beside identity only, then let the
+   bio, links, and stats use the full card width.
+   ------------------------------------------------- */
+@container live-preview (max-width: 720px) {
+  .archive-profile-panel .preview-profile {
+    display: grid;
+    grid-template-columns: 82px minmax(0, 1fr);
+    grid-template-rows: auto auto auto auto auto auto;
+    column-gap: .72rem;
+    row-gap: 0;
+    align-items: start;
+  }
+
+  .archive-profile-panel .preview-profile-copy {
+    display: contents;
+  }
+
+  .archive-profile-panel .preview-avatar {
+    grid-column: 1;
+    grid-row: 1 / 4;
+    align-self: start;
+  }
+
+  .archive-profile-panel .preview-manifesto {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: end;
+  }
+
+  .archive-profile-panel .preview-profile h3 {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .archive-profile-panel .preview-handle {
+    grid-column: 2;
+    grid-row: 3;
+    margin-bottom: 0;
+  }
+
+  .archive-profile-panel .preview-bio {
+    grid-column: 1 / -1;
+    grid-row: 4;
+    width: 100%;
+    margin-top: .78rem;
+  }
+
+  .archive-profile-panel .preview-social-links {
+    grid-column: 1 / -1;
+    grid-row: 5;
+    width: 100%;
+    margin-top: .72rem;
+  }
+
+  .archive-profile-panel .hero-stats {
+    grid-column: 1 / -1;
+    grid-row: 6;
+    width: 100%;
+    margin-top: .78rem;
+    padding-top: .78rem;
+  }
+}
+
+@container live-preview (max-width: 520px) {
+  .archive-profile-panel .preview-profile {
+    grid-template-columns: 70px minmax(0, 1fr);
+  }
+}
+
+@container live-preview (max-width: 400px) {
+  .archive-profile-panel .preview-profile {
+    grid-template-columns: 62px minmax(0, 1fr);
+  }
+}
