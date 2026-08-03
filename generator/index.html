@@ -404,7 +404,7 @@
               </div>
             </div>
 
-            <div class="world-title-grid">
+            <div class="world-title-grid world-primary-row">
               <label>
                 <span class="editable-field-heading"><span>세계관 이름</span><input id="worldNameColorInput" class="field-color-input" type="color" value="#f4f1ea" aria-label="세계관 이름 글자색" title="세계관 이름 글자색"></span>
                 <input
@@ -422,6 +422,17 @@
                   placeholder="예: 사라진 별과 패전국을 둘러싼 왕국 연대기"
                 >
               </label>
+
+              <div class="world-status-options compact-status-options" role="group" aria-label="세계관 표시 설정">
+                <label class="compact-status-option">
+                  <input id="worldFeaturedInput" type="checkbox">
+                  <span>추천 <b id="worldFeaturedCount">0/3</b></span>
+                </label>
+                <label class="compact-status-option">
+                  <input id="worldNewInput" type="checkbox">
+                  <span>신작 <b aria-hidden="true">N</b></span>
+                </label>
+              </div>
             </div>
 
             <label>
@@ -613,13 +624,13 @@
                 <select id="characterWorldSelect"></select>
               </label>
 
-              <div class="character-status-options" role="group" aria-label="캐릭터 표시 설정">
-                <label class="character-compact-option">
+              <div class="character-status-options compact-status-options" role="group" aria-label="캐릭터 표시 설정">
+                <label class="character-compact-option compact-status-option">
                   <input id="characterFeaturedInput" type="checkbox">
                   <span>추천 <b id="characterFeaturedCount">0/3</b></span>
                 </label>
 
-                <label class="character-compact-option character-new-option">
+                <label class="character-compact-option character-new-option compact-status-option">
                   <input id="characterNewInput" type="checkbox">
                   <span>신작 <b aria-hidden="true">N</b></span>
                 </label>
@@ -851,8 +862,7 @@
               <section class="stardust-character-preview character-featured-preview" id="previewFeaturedSection" aria-labelledby="previewFeaturedTitle" hidden>
                 <div class="character-preview-heading">
                   <div>
-                    <p class="eyebrow">FEATURED CHARACTERS</p>
-                    <h2 id="previewFeaturedTitle">추천 캐릭터</h2>
+                    <p class="eyebrow">추천 캐릭터</p>
                   </div>
                 </div>
                 <div class="character-featured-grid" id="previewFeaturedGrid"></div>
@@ -861,12 +871,8 @@
               <section class="stardust-world-preview" id="previewWorldSection" aria-labelledby="previewWorldTitle" hidden>
                 <div class="world-preview-section-heading">
                   <div>
-                    <p class="eyebrow archive-home-world-kicker">FEATURED WORLDS</p>
+                    <p class="eyebrow archive-home-world-kicker">추천 세계관</p>
                     <p class="eyebrow archive-page-world-kicker">WORLD ARCHIVE</p>
-                    <h2 id="previewWorldTitle">
-                      <span class="archive-home-world-title">추천 세계관</span>
-                      <span class="archive-page-world-title">세계관 아카이브</span>
-                    </h2>
                   </div>
                   <label class="archive-sort-control archive-world-sort" for="previewWorldSort">
                     <span>정렬</span>
@@ -899,7 +905,6 @@
                 <div class="character-preview-heading character-archive-heading">
                   <div>
                     <p class="eyebrow">CHARACTER ARCHIVE</p>
-                    <h2 id="previewCharacterTitle">캐릭터 아카이브</h2>
                   </div>
                   <div class="archive-heading-actions">
                     <p id="previewCharacterResultSummary" aria-live="polite">총 0명 중 0명 표시</p>
@@ -915,7 +920,7 @@
 
                 <div class="controls" aria-label="캐릭터 검색 및 필터">
                   <label class="search-box">
-                    <span class="sr-only">캐릭터 검색</span>
+                    <span class="sr-only">검색</span>
                     <span aria-hidden="true">⌕</span>
                     <input
                       id="previewCharacterSearchInput"
@@ -963,8 +968,7 @@
               <section class="archive-plan-preview" aria-labelledby="archivePlanTitle">
                 <div class="archive-page-heading">
                   <p class="eyebrow">PLAN</p>
-                  <h2 id="archivePlanTitle">개봉 예정</h2>
-                  <p>곧 공개될 이야기와 현재 제작 중인 작품들</p>
+              <p>곧 공개될 이야기와 현재 제작 중인 플롯</p>
                 </div>
                 <div id="previewPlanGrid" class="archive-plan-grid"></div>
                 <div id="previewPlanEmpty" class="archive-plan-empty">

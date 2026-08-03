@@ -6966,3 +6966,188 @@ textarea {
     aspect-ratio: auto;
   }
 }
+
+/* =========================================================
+   World thumbnails: match character thumbnail sizing only
+   ========================================================= */
+
+/* HOME recommended worlds use the same portrait ratio as
+   HOME recommended character thumbnails. */
+#archiveTabHome:checked ~ .archive-site-shell #previewWorldGrid .world-card-image {
+  aspect-ratio: 4 / 4.55;
+}
+
+/* WORLD archive uses the same card width, gap, and portrait ratio
+   as the CHARACTER archive at each responsive width. */
+#archiveTabWorld:checked ~ .archive-site-shell .world-grid {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: .72rem;
+}
+
+#archiveTabWorld:checked ~ .archive-site-shell .world-card-image {
+  aspect-ratio: 4 / 5;
+}
+
+@container live-preview (max-width: 900px) {
+  #archiveTabWorld:checked ~ .archive-site-shell .world-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@container live-preview (max-width: 720px) {
+  #archiveTabWorld:checked ~ .archive-site-shell .world-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@container live-preview (max-width: 520px) {
+  #archiveTabWorld:checked ~ .archive-site-shell .world-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+
+/* =========================================================
+   Compact world / character status controls
+   Keep primary selectors on one line without touching content sections.
+   ========================================================= */
+.world-primary-row {
+  grid-template-columns: minmax(150px, .8fr) minmax(210px, 1.25fr) auto;
+  align-items: end;
+}
+
+.compact-status-options {
+  display: inline-flex;
+  min-width: max-content;
+  align-items: flex-end;
+  align-self: end;
+  gap: .4rem;
+  margin: 0;
+}
+
+.compact-status-option,
+.compact-status-option + .compact-status-option,
+.character-status-options > label,
+.character-status-options > label + label,
+.world-status-options > label,
+.world-status-options > label + label {
+  display: inline-flex;
+  width: auto;
+  min-width: 0;
+  min-height: 36px;
+  align-items: center;
+  justify-content: center;
+  gap: .34rem;
+  margin: 0 !important;
+  padding: .36rem .55rem;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--surface-2) 72%, transparent);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.compact-status-option input,
+.character-form .compact-status-option input,
+.world-form .compact-status-option input {
+  width: 15px;
+  min-width: 15px;
+  height: 15px;
+  min-height: 15px;
+  margin: 0;
+  padding: 0;
+}
+
+.compact-status-option > span,
+.character-form .compact-status-option > span,
+.world-form .compact-status-option > span {
+  color: var(--text);
+  font-size: .67rem;
+  font-weight: 850;
+  line-height: 1;
+}
+
+.compact-status-option b {
+  color: var(--accent);
+  font-size: .64rem;
+}
+
+.character-status-row {
+  display: grid;
+  grid-template-columns: minmax(130px, 210px) auto;
+  align-items: end;
+  justify-content: start;
+  gap: .5rem;
+}
+
+.character-world-field {
+  width: 100%;
+  max-width: 210px;
+  margin: 0;
+}
+
+.character-world-field select {
+  width: 100%;
+}
+
+.character-status-options {
+  flex-wrap: nowrap;
+}
+
+.world-new-mark {
+  z-index: 4;
+}
+
+@media (max-width: 760px) {
+  .character-world-featured-grid.character-status-row {
+    grid-template-columns: minmax(120px, 190px) auto;
+  }
+
+  .world-primary-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .world-primary-row .world-status-options {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+}
+
+@media (max-width: 560px) {
+  .character-world-featured-grid.character-status-row {
+    grid-template-columns: minmax(110px, 1fr) auto !important;
+    align-items: end;
+  }
+
+  .character-world-featured-grid.character-status-row > label {
+    min-width: 0;
+  }
+
+  .character-world-field {
+    max-width: none;
+  }
+
+  .compact-status-options {
+    gap: .28rem;
+  }
+
+  .compact-status-option,
+  .compact-status-option + .compact-status-option {
+    min-height: 42px;
+    padding: .34rem .44rem;
+  }
+
+  .compact-status-option > span,
+  .character-form .compact-status-option > span,
+  .world-form .compact-status-option > span {
+    font-size: .62rem;
+  }
+
+  .world-title-grid.world-primary-row {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .world-primary-row .world-status-options {
+    grid-column: auto;
+  }
+}

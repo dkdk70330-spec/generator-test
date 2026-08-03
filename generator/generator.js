@@ -248,6 +248,9 @@ const elements = {
     removeWorldImageButton: document.querySelector("#removeWorldImageButton"),
     worldNameInput: document.querySelector("#worldNameInput"),
     worldSubtitleInput: document.querySelector("#worldSubtitleInput"),
+    worldFeaturedInput: document.querySelector("#worldFeaturedInput"),
+    worldFeaturedCount: document.querySelector("#worldFeaturedCount"),
+    worldNewInput: document.querySelector("#worldNewInput"),
     worldTagsInput: document.querySelector("#worldTagsInput"),
     worldDescriptionInput: document.querySelector("#worldDescriptionInput"),
     worldNameColorInput: document.querySelector("#worldNameColorInput"),
@@ -766,6 +769,8 @@ const elements = {
       id,
       name: normalizeString(world.name, `worlds[${index}].name`),
       subtitle: normalizeString(world.subtitle, `worlds[${index}].subtitle`),
+      featured: world.featured === true,
+      newRelease: world.newRelease === true,
       image: normalizeWorldImage(world.image, `worlds[${index}].image`),
       tags: rawTags.map((tag, tagIndex) =>
         normalizeString(tag, `worlds[${index}].tags[${tagIndex}]`).trim()
@@ -1251,6 +1256,8 @@ const elements = {
       id: createEntityId("world"),
       name: "",
       subtitle: "",
+      featured: false,
+      newRelease: false,
       image: "",
       tags: [],
       description: [],
@@ -5409,6 +5416,12 @@ elements.characterPreviewModalTags.innerHTML = [
 
     elements.worldNameInput.value = world.name || "";
     elements.worldSubtitleInput.value = world.subtitle || "";
+    elements.worldFeaturedInput.checked = world.featured === true;
+    elements.worldNewInput.checked = world.newRelease === true;
+    if (elements.worldFeaturedCount) {
+      const featuredCount = project.worlds.filter((item) => item.featured).length;
+      elements.worldFeaturedCount.textContent = `${featuredCount}/3`;
+    }
     elements.worldTagsInput.value = (world.tags || []).join(", ");
     elements.worldDescriptionInput.value = bioArrayToText(world.description);
     elements.worldNameColorInput.value = normalizeHexColor(world.textColors?.name, DEFAULT_TEXT_COLOR);
@@ -5468,6 +5481,7 @@ elements.characterPreviewModalTags.innerHTML = [
         >
           <div class="world-card-image">
             ${cover}
+            ${world.newRelease ? '<span class="character-new-mark world-new-mark" title="신작">N</span>' : ""}
             <div class="world-face-stack" aria-label="연결된 캐릭터">${faces}</div>
             ${
               hasPlayableMusic(world)
@@ -5519,12 +5533,18 @@ elements.characterPreviewModalTags.innerHTML = [
     renderArchiveCounts();
     const hasWorlds = project.worlds.length > 0;
     const isWorldArchive = elements.archiveTabWorld?.checked === true;
+    const homeWorlds = [
+      ...project.worlds.filter((world) => world.featured),
+      ...project.worlds.filter((world) => !world.featured)
+    ].filter((world, index, list) =>
+      list.findIndex((item) => item.id === world.id) === index
+    ).slice(0, 3);
     const worlds = isWorldArchive
       ? sortArchiveItems(
           project.worlds,
           elements.previewWorldSort?.value || "latest"
         )
-      : [...project.worlds];
+      : homeWorlds;
     elements.previewWorldSection.hidden = !hasWorlds;
     elements.previewWorldGrid.hidden = !hasWorlds;
     elements.previewWorldEmpty.hidden = hasWorlds;
@@ -5633,6 +5653,21 @@ elements.characterPreviewModalTags.innerHTML = [
 
     world.name = elements.worldNameInput.value.trim();
     world.subtitle = elements.worldSubtitleInput.value.trim();
+
+    const requestedFeatured = elements.worldFeaturedInput.checked;
+    if (requestedFeatured && !world.featured) {
+      const featuredCount = project.worlds.filter((item) => item.featured).length;
+      if (featuredCount >= 3) {
+        elements.worldFeaturedInput.checked = false;
+        window.alert("추천 세계관은 최대 3개까지 지정할 수 있습니다.");
+      } else {
+        world.featured = true;
+      }
+    } else {
+      world.featured = requestedFeatured;
+    }
+    world.newRelease = elements.worldNewInput.checked;
+
     world.tags = splitTags(elements.worldTagsInput.value);
     world.description = bioTextToArray(elements.worldDescriptionInput.value);
     world.textColors = {
@@ -5642,6 +5677,9 @@ elements.characterPreviewModalTags.innerHTML = [
       description: normalizeHexColor(elements.worldDescriptionColorInput.value, DEFAULT_TEXT_COLOR)
     };
 
+    if (elements.worldFeaturedCount) {
+      elements.worldFeaturedCount.textContent = `${project.worlds.filter((item) => item.featured).length}/3`;
+    }
     renderWorldList();
     renderCharacterWorldOptions();
     renderCharacterPreview();
@@ -8152,6 +8190,7 @@ elements.characterPreviewModalTags.innerHTML = [
           <button class="world-card-button" type="button" data-preview-world="${escapeHtml(world.id)}">
             <div class="world-card-image">
               ${cover}
+              ${world.newRelease ? '<span class="character-new-mark world-new-mark" title="신작">N</span>' : ""}
               <div class="world-face-stack" aria-label="연결된 캐릭터">${faces}</div>
               ${hasPlayableMusic(world) ? '<span class="archive-music-mark" title="음악 있음" aria-hidden="true">♫</span>' : ""}
             </div>
@@ -8289,12 +8328,18 @@ elements.characterPreviewModalTags.innerHTML = [
     function renderWorlds() {
       const sourceWorlds = project.worlds || [];
       const isWorldArchive = elements.archiveTabWorld?.checked === true;
+      const homeWorlds = [
+        ...sourceWorlds.filter((world) => world.featured),
+        ...sourceWorlds.filter((world) => !world.featured)
+      ].filter((world, index, list) =>
+        list.findIndex((item) => item.id === world.id) === index
+      ).slice(0, 3);
       const worlds = isWorldArchive
         ? sortArchiveItems(
             sourceWorlds,
             elements.previewWorldSort?.value || "latest"
           )
-        : [...sourceWorlds];
+        : homeWorlds;
       elements.previewWorldSection.hidden = sourceWorlds.length === 0;
       elements.previewWorldGrid.hidden = sourceWorlds.length === 0;
       elements.previewWorldEmpty.hidden = sourceWorlds.length > 0;
