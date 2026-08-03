@@ -311,7 +311,7 @@ textarea:focus {
 
 .avatar-preview {
   width: 88px;
-  aspect-ratio: 2 / 3;
+  aspect-ratio: 1;
   border-radius: 26px;
   font-size: 1.6rem;
 }
@@ -664,7 +664,7 @@ textarea:focus {
 
 .preview-avatar {
   width: 82px;
-  aspect-ratio: 2 / 3;
+  aspect-ratio: 1;
   border-radius: 25px;
   font-size: 1.6rem;
 }
@@ -5728,9 +5728,6 @@ body.plan-preview-modal-open { overflow: hidden; }
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  #archiveTabHome:checked ~ .archive-site-shell #previewWorldGrid > .world-card:nth-child(n + 3) {
-    display: none !important;
-  }
 }
 
 /* 탭 전환 뒤에는 전체 아카이브를 즉시 펼쳐 보입니다.
@@ -6429,5 +6426,207 @@ textarea {
   #archiveTabHome:checked ~ .archive-site-shell .character-preview-card-body p,
   #archiveTabHome:checked ~ .archive-site-shell .world-card-body > p {
     font-size: .54rem;
+  }
+}
+
+
+/* ---------------------------------------------------------
+   Mobile HOME profile and recommendation layout
+   - Profile artwork is fixed to a 2:3 portrait crop on mobile.
+   - HOME recommendations stay in one three-card row.
+   - Full WORLD / CHARACTER archive grids keep their existing rules.
+   --------------------------------------------------------- */
+@media (max-width: 760px) {
+  #archiveTabHome:checked ~ .archive-site-shell .archive-profile-panel .preview-avatar {
+    flex: 0 0 auto;
+    aspect-ratio: 2 / 3;
+    height: auto;
+    overflow: hidden;
+  }
+
+  #archiveTabHome:checked ~ .archive-site-shell .archive-profile-panel .preview-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  #archiveTabHome:checked ~ .archive-site-shell .character-featured-grid,
+  #archiveTabHome:checked ~ .archive-site-shell #previewWorldGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: .4rem;
+  }
+
+  #archiveTabHome:checked ~ .archive-site-shell .character-preview-card-body,
+  #archiveTabHome:checked ~ .archive-site-shell .world-card-body {
+    padding: .42rem;
+  }
+
+  #archiveTabHome:checked ~ .archive-site-shell .character-preview-card-body h3,
+  #archiveTabHome:checked ~ .archive-site-shell .world-card-body h3 {
+    font-size: .69rem;
+  }
+
+  #archiveTabHome:checked ~ .archive-site-shell .character-preview-card-body p,
+  #archiveTabHome:checked ~ .archive-site-shell .world-card-body > p {
+    font-size: .53rem;
+  }
+}
+
+@container live-preview (max-width: 520px) {
+  #archiveTabHome:checked ~ .archive-site-shell .archive-profile-panel .preview-avatar {
+    flex: 0 0 auto;
+    aspect-ratio: 2 / 3;
+    height: auto;
+    overflow: hidden;
+  }
+
+  #archiveTabHome:checked ~ .archive-site-shell .archive-profile-panel .preview-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+/* ---------------------------------------------------------
+   Compact archive sorting controls
+   They live in the heading rail and never consume thumbnail-grid space.
+   --------------------------------------------------------- */
+.archive-heading-actions {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: flex-end;
+  gap: .65rem;
+}
+
+.archive-heading-actions > p {
+  margin: 0;
+}
+
+.archive-sort-control,
+.archive-sort-control + .archive-sort-control {
+  display: inline-flex;
+  width: auto;
+  min-width: 0;
+  align-items: center;
+  gap: .38rem;
+  margin: 0 !important;
+  color: var(--muted);
+  font-size: .64rem;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.archive-sort-control > span {
+  color: inherit;
+  font-size: inherit;
+}
+
+.archive-sort-control select {
+  width: auto;
+  min-width: 76px;
+  min-height: 30px;
+  padding: .28rem 1.65rem .28rem .58rem;
+  border-radius: 999px;
+  background-color: color-mix(in srgb, var(--surface-2) 86%, transparent);
+  color: var(--text);
+  font-size: .66rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+#archiveTabHome:checked ~ .archive-site-shell .archive-world-sort {
+  display: none;
+}
+
+@media (max-width: 620px) {
+  .character-archive-heading {
+    align-items: flex-end;
+    flex-direction: row;
+  }
+
+  .archive-heading-actions {
+    align-items: flex-end;
+    flex-direction: column;
+    gap: .28rem;
+  }
+
+  .archive-sort-control > span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+  }
+
+  .archive-sort-control select {
+    min-width: 72px;
+    min-height: 32px;
+    padding-inline: .55rem 1.45rem;
+  }
+}
+
+/* ---------------------------------------------------------
+   User-entered text color
+   Theme color controls accents/surfaces only. System labels stay neutral.
+   --------------------------------------------------------- */
+:root {
+  --user-text: #f4f1ea;
+}
+
+#previewSiteTitle,
+#previewCreatorName,
+.hero-stats strong,
+.character-preview-card-body h3,
+.world-card-body h3,
+.archive-plan-card-body h3,
+.world-modal-content h2,
+.world-info-block h3,
+.world-character-button strong,
+.character-preview-identity h2,
+.character-preview-content-box strong,
+.character-preview-world-button strong,
+.plan-preview-modal-content h2,
+.soundtrack-heading strong {
+  color: var(--user-text, var(--text));
+}
+
+#previewSiteDescription,
+#previewCreatorHandle,
+#previewCreatorBio,
+.character-preview-card-body p,
+.world-card-body > p,
+.archive-plan-status,
+.archive-plan-card-body p,
+.world-modal-summary,
+.world-modal-description,
+.world-info-block p,
+.world-info-block-content,
+.world-character-button small,
+.character-preview-identity p,
+.character-preview-description,
+.character-preview-content-body p,
+.character-preview-world-button em,
+.plan-preview-modal-status,
+.plan-preview-modal-description {
+  color: color-mix(in srgb, var(--user-text, var(--text)) 76%, transparent);
+}
+
+.archive-world-sort {
+  margin-left: auto !important;
+}
+
+@media (max-width: 620px) {
+  .archive-sort-control select {
+    min-width: 88px;
+    font-size: 16px;
+  }
+}
+
+@container live-preview (max-width: 520px) {
+  .archive-sort-control select {
+    min-width: 74px;
+    font-size: .72rem;
   }
 }

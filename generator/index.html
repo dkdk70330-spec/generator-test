@@ -107,7 +107,7 @@
 
             <div class="site-color-controls" aria-label="사이트 색상">
               <label class="site-color-control">
-                <span>글자색</span>
+                <span>입력 텍스트 색</span>
                 <span class="site-color-input-row">
                   <input id="siteTextColorInput" type="color" value="#f4f1ea">
                   <output id="siteTextColorValue" for="siteTextColorInput">#f4f1ea</output>
@@ -875,6 +875,13 @@
                       <span class="archive-page-world-title">세계관 아카이브</span>
                     </h2>
                   </div>
+                  <label class="archive-sort-control archive-world-sort" for="previewWorldSort">
+                    <span>정렬</span>
+                    <select id="previewWorldSort" aria-label="세계관 정렬">
+                      <option value="latest">최신순</option>
+                      <option value="name">이름순</option>
+                    </select>
+                  </label>
                 </div>
 
                 <div class="world-grid" id="previewWorldGrid"></div>
@@ -901,7 +908,16 @@
                     <p class="eyebrow">CHARACTER ARCHIVE</p>
                     <h2 id="previewCharacterTitle">캐릭터 아카이브</h2>
                   </div>
-                  <p id="previewCharacterResultSummary" aria-live="polite">총 0명 중 0명 표시</p>
+                  <div class="archive-heading-actions">
+                    <p id="previewCharacterResultSummary" aria-live="polite">총 0명 중 0명 표시</p>
+                    <label class="archive-sort-control" for="previewCharacterSort">
+                      <span>정렬</span>
+                      <select id="previewCharacterSort" aria-label="캐릭터 정렬">
+                        <option value="latest">최신순</option>
+                        <option value="name">이름순</option>
+                      </select>
+                    </label>
+                  </div>
                 </div>
 
                 <div class="controls" aria-label="캐릭터 검색 및 필터">

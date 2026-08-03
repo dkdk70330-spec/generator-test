@@ -332,8 +332,11 @@ const elements = {
     previewWidthInput: document.querySelector("#previewWidthInput"),
     previewWidthOutput: document.querySelector("#previewWidthOutput"),
     previewCanvas: document.querySelector("#previewCanvas"),
+    archiveTabHome: document.querySelector("#archiveTabHome"),
+    archiveTabWorld: document.querySelector("#archiveTabWorld"),
 
     previewWorldSection: document.querySelector("#previewWorldSection"),
+    previewWorldSort: document.querySelector("#previewWorldSort"),
     previewWorldGrid: document.querySelector("#previewWorldGrid"),
     previewWorldToggleWrap: document.querySelector("#previewWorldToggleWrap"),
     previewWorldToggle: document.querySelector("#previewWorldToggle"),
@@ -359,6 +362,7 @@ const elements = {
     previewCharacterToggle: document.querySelector("#previewCharacterToggle"),
     previewCharacterEmpty: document.querySelector("#previewCharacterEmpty"),
     previewCharacterResultSummary: document.querySelector("#previewCharacterResultSummary"),
+    previewCharacterSort: document.querySelector("#previewCharacterSort"),
     previewCharacterSearchInput: document.querySelector("#previewCharacterSearchInput"),
     previewGenreFilters: document.querySelector("#previewGenreFilters"),
     previewTagFilters: document.querySelector("#previewTagFilters"),
@@ -1107,6 +1111,22 @@ const elements = {
       .replaceAll(">", "&gt;")
       .replaceAll('"', "&quot;")
       .replaceAll("'", "&#039;");
+  }
+
+  function sortArchiveItems(items, mode, fieldName = "name") {
+    const source = [...(items || [])];
+    if (mode !== "name") return source;
+
+    return source.sort((left, right) => {
+      const leftName = String(left?.[fieldName] || "").trim();
+      const rightName = String(right?.[fieldName] || "").trim();
+      if (!leftName && rightName) return 1;
+      if (leftName && !rightName) return -1;
+      return leftName.localeCompare(rightName, "ko", {
+        numeric: true,
+        sensitivity: "base"
+      });
+    });
   }
 
   function bioTextToArray(value) {
@@ -4628,7 +4648,10 @@ const genres = (character.genres || [])
 
     renderCharacterPreviewFilters();
 
-    const characters = filteredCharacterPreviewCharacters();
+    const characters = sortArchiveItems(
+      filteredCharacterPreviewCharacters(),
+      elements.previewCharacterSort?.value || "latest"
+    );
     const hasCharacters = characters.length > 0;
 
     elements.previewCharacterGrid.innerHTML = hasCharacters
@@ -5412,11 +5435,18 @@ elements.characterPreviewModalTags.innerHTML = [
   function renderWorldPreview() {
     renderArchiveCounts();
     const hasWorlds = project.worlds.length > 0;
+    const isWorldArchive = elements.archiveTabWorld?.checked === true;
+    const worlds = isWorldArchive
+      ? sortArchiveItems(
+          project.worlds,
+          elements.previewWorldSort?.value || "latest"
+        )
+      : [...project.worlds];
     elements.previewWorldSection.hidden = !hasWorlds;
     elements.previewWorldGrid.hidden = !hasWorlds;
     elements.previewWorldEmpty.hidden = hasWorlds;
     elements.previewWorldGrid.innerHTML = hasWorlds
-      ? project.worlds.map(worldCardMarkup).join("")
+      ? worlds.map(worldCardMarkup).join("")
       : "";
 
     if (!hasWorlds) worldPreviewExpanded = false;
@@ -5891,17 +5921,16 @@ elements.characterPreviewModalTags.innerHTML = [
       elements.previewCanvas,
       elements.worldPreviewModal,
       elements.characterPreviewModal,
+      elements.planPreviewModal,
       elements.previewCharacterFilterPicker
     ];
 
     targets.forEach((target) => {
       if (!target) return;
 
-      target.style.setProperty("--text", textColor);
-      target.style.setProperty(
-        "--muted",
-        `color-mix(in srgb, ${themeColor} 28%, #aaa8b4)`
-      );
+      target.style.setProperty("--text", DEFAULT_TEXT_COLOR);
+      target.style.setProperty("--muted", "#aaa8b4");
+      target.style.setProperty("--user-text", textColor);
 
       target.style.setProperty("--theme", themeColor);
       target.style.setProperty("--violet", themeColor);
@@ -7458,8 +7487,9 @@ elements.characterPreviewModalTags.innerHTML = [
     const themeInk = contrastTextColor(themeColor);
 
     return [
-      `--text:${textColor}`,
-      `--muted:color-mix(in srgb, ${themeColor} 28%, #aaa8b4)`,
+      `--text:${DEFAULT_TEXT_COLOR}`,
+      `--muted:#aaa8b4`,
+      `--user-text:${textColor}`,
       `--theme:${themeColor}`,
       `--violet:${themeColor}`,
       `--accent:${themeColor}`,
@@ -7571,6 +7601,22 @@ elements.characterPreviewModalTags.innerHTML = [
       (catalog.genres || []).map((item) => [item.id, item])
     );
 
+    function sortArchiveItems(items, mode, fieldName = "name") {
+      const source = [...(items || [])];
+      if (mode !== "name") return source;
+
+      return source.sort((left, right) => {
+        const leftName = String(left?.[fieldName] || "").trim();
+        const rightName = String(right?.[fieldName] || "").trim();
+        if (!leftName && rightName) return 1;
+        if (leftName && !rightName) return -1;
+        return leftName.localeCompare(rightName, "ko", {
+          numeric: true,
+          sensitivity: "base"
+        });
+      });
+    }
+
     const filterState = {
       query: "",
       genre: new Set(),
@@ -7586,6 +7632,8 @@ elements.characterPreviewModalTags.innerHTML = [
 
     const elements = {
       previewCanvas: document.querySelector("#previewCanvas"),
+      archiveTabHome: document.querySelector("#archiveTabHome"),
+      archiveTabWorld: document.querySelector("#archiveTabWorld"),
       previewSiteTitle: document.querySelector("#previewSiteTitle"),
       previewSiteDescription: document.querySelector("#previewSiteDescription"),
       previewCreatorName: document.querySelector("#previewCreatorName"),
@@ -7611,6 +7659,7 @@ elements.characterPreviewModalTags.innerHTML = [
       previewFeaturedSection: document.querySelector("#previewFeaturedSection"),
       previewFeaturedGrid: document.querySelector("#previewFeaturedGrid"),
       previewWorldSection: document.querySelector("#previewWorldSection"),
+      previewWorldSort: document.querySelector("#previewWorldSort"),
       previewWorldGrid: document.querySelector("#previewWorldGrid"),
       previewWorldEmpty: document.querySelector("#previewWorldEmpty"),
       previewWorldToggleWrap: document.querySelector("#previewWorldToggleWrap"),
@@ -7619,6 +7668,7 @@ elements.characterPreviewModalTags.innerHTML = [
       previewCharacterGrid: document.querySelector("#previewCharacterGrid"),
       previewCharacterEmpty: document.querySelector("#previewCharacterEmpty"),
       previewCharacterResultSummary: document.querySelector("#previewCharacterResultSummary"),
+      previewCharacterSort: document.querySelector("#previewCharacterSort"),
       previewCharacterToggleWrap: document.querySelector("#previewCharacterToggleWrap"),
       previewCharacterToggle: document.querySelector("#previewCharacterToggle"),
       previewCharacterSearchInput: document.querySelector("#previewCharacterSearchInput"),
@@ -7847,12 +7897,14 @@ elements.characterPreviewModalTags.innerHTML = [
         elements.previewCanvas,
         elements.filterPicker,
         elements.characterModal,
-        elements.worldModal
+        elements.worldModal,
+        elements.planModal
       ];
       targets.forEach((target) => {
         if (!target) return;
-        target.style.setProperty("--text", text);
-        target.style.setProperty("--muted", `color-mix(in srgb, ${theme} 28%, #aaa8b4)`);
+        target.style.setProperty("--text", "#f4f1ea");
+        target.style.setProperty("--muted", "#aaa8b4");
+        target.style.setProperty("--user-text", text);
         target.style.setProperty("--theme", theme);
         target.style.setProperty("--violet", theme);
         target.style.setProperty("--accent", theme);
@@ -8109,12 +8161,19 @@ elements.characterPreviewModalTags.innerHTML = [
     }
 
     function renderWorlds() {
-      const worlds = project.worlds || [];
-      elements.previewWorldSection.hidden = worlds.length === 0;
-      elements.previewWorldGrid.hidden = worlds.length === 0;
-      elements.previewWorldEmpty.hidden = worlds.length > 0;
+      const sourceWorlds = project.worlds || [];
+      const isWorldArchive = elements.archiveTabWorld?.checked === true;
+      const worlds = isWorldArchive
+        ? sortArchiveItems(
+            sourceWorlds,
+            elements.previewWorldSort?.value || "latest"
+          )
+        : [...sourceWorlds];
+      elements.previewWorldSection.hidden = sourceWorlds.length === 0;
+      elements.previewWorldGrid.hidden = sourceWorlds.length === 0;
+      elements.previewWorldEmpty.hidden = sourceWorlds.length > 0;
       elements.previewWorldGrid.innerHTML = worlds.map(worldCardMarkup).join("");
-      if (worlds.length === 0) worldExpanded = false;
+      if (sourceWorlds.length === 0) worldExpanded = false;
       updateWorldLimit();
     }
 
@@ -8366,7 +8425,10 @@ elements.characterPreviewModalTags.innerHTML = [
 
 function renderCharacters() {
   const allCharacters = project.characters || [];
-  const characters = filteredCharacters();
+  const characters = sortArchiveItems(
+    filteredCharacters(),
+    elements.previewCharacterSort?.value || "latest"
+  );
   const hasCharacters = characters.length > 0;
 
   elements.previewCharacterSection.hidden =
@@ -8642,6 +8704,15 @@ function renderCharacters() {
         }
         const more = event.target.closest("[data-character-filter-more]");
         if (more) openFilterPicker(more.dataset.characterFilterMore);
+      });
+
+      elements.previewWorldSort?.addEventListener("change", renderWorlds);
+      elements.previewCharacterSort?.addEventListener("change", renderCharacters);
+      elements.archiveTabHome?.addEventListener("change", () => {
+        if (elements.archiveTabHome.checked) renderWorlds();
+      });
+      elements.archiveTabWorld?.addEventListener("change", () => {
+        if (elements.archiveTabWorld.checked) renderWorlds();
       });
 
       elements.previewCharacterSearchInput.addEventListener("input", (event) => {
@@ -9968,6 +10039,15 @@ ZIP 파일 자체를 저장소에 올리지 말고, 각 ZIP의 압축을 푼 내
       renderCharacterPreviewFilterPicker();
     }
   );
+
+  elements.previewWorldSort?.addEventListener("change", renderWorldPreview);
+  elements.previewCharacterSort?.addEventListener("change", renderCharacterPreview);
+  elements.archiveTabHome?.addEventListener("change", () => {
+    if (elements.archiveTabHome.checked) renderWorldPreview();
+  });
+  elements.archiveTabWorld?.addEventListener("change", () => {
+    if (elements.archiveTabWorld.checked) renderWorldPreview();
+  });
 
   elements.previewCharacterSearchInput.addEventListener(
     "input",
