@@ -715,6 +715,82 @@
           </section>
         </div>
       </details>
+
+      <details class="major-editor-fold major-editor-collection-fold" id="planEditorFold">
+        <summary class="major-editor-fold-summary">
+          <span><strong id="planEditorTitle">PLAN 편집</strong><small>개봉 예정 포스터와 제작 현황을 관리합니다.</small></span>
+          <b aria-hidden="true">⌄</b>
+        </summary>
+        <div class="major-editor-fold-body">
+          <section class="plan-editor-section" aria-labelledby="planEditorTitle">
+            <div class="major-editor-action-row">
+              <p class="eyebrow">COMING SOON</p>
+              <button id="addPlanButton" class="primary-button" type="button">새 계획</button>
+            </div>
+
+            <div class="plan-editor-layout">
+              <aside class="plan-editor-sidebar" aria-label="제작 계획 목록">
+                <div id="planEditorList" class="plan-editor-list">
+                  <p class="empty-message">등록된 제작 계획이 없습니다.</p>
+                </div>
+              </aside>
+
+              <div id="planEditorEmpty" class="plan-editor-empty">
+                <strong>제작 계획을 추가해 주세요.</strong>
+                <p>썸네일과 제목을 입력하면 PLAN 탭에 포스터가 나타납니다.</p>
+              </div>
+
+              <form id="planForm" class="plan-form" novalidate hidden>
+                <div class="plan-form-actions" aria-label="선택한 제작 계획 관리">
+                  <button id="movePlanUpButton" class="secondary-button" type="button">위로</button>
+                  <button id="movePlanDownButton" class="secondary-button" type="button">아래로</button>
+                  <button id="deletePlanButton" class="plan-danger-button" type="button">삭제</button>
+                </div>
+
+                <div class="plan-image-editor image-drop-zone" data-image-drop-target="plan" tabindex="0" role="group" aria-label="제작 계획 썸네일 업로드 영역">
+                  <div class="plan-image-editor-preview" aria-hidden="true">
+                    <img id="planImageEditorPreview" alt="" hidden>
+                    <span id="planImageEditorFallback">POSTER</span>
+                  </div>
+                  <div>
+                    <label class="file-label" for="planImageInput">썸네일 이미지 선택</label>
+                    <input id="planImageInput" class="file-input" type="file" accept=".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp">
+                    <p class="image-input-hint">파일 선택 · 끌어놓기 · 이미지 영역 선택 후 Ctrl+V</p>
+                    <p id="planImageStorageStatus" class="field-help" role="status" aria-live="polite">
+                      이미지는 새 PNG로 변환되어 이 브라우저에 저장되고 새로고침 후에도 유지됩니다. 최대 10MB.
+                    </p>
+                    <button id="removePlanImageButton" class="text-button" type="button" hidden>이미지 제거</button>
+                  </div>
+                </div>
+
+                <div class="plan-identity-grid">
+                  <label>
+                    <span>제목</span>
+                    <input id="planTitleInput" type="text" maxlength="100" placeholder="예: 여름밤의 도망자">
+                  </label>
+                  <label>
+                    <span>제작 현황</span>
+                    <input id="planStatusInput" type="text" maxlength="80" placeholder="예: 캐릭터 이미지 작업 중">
+                  </label>
+                </div>
+
+                <label>
+                  <span>소개글</span>
+                  <textarea id="planDescriptionInput" rows="7" maxlength="1500" placeholder="카드를 선택했을 때 작은 팝업에 표시할 소개글입니다. 문단을 나누려면 빈 줄을 하나 넣어주세요."></textarea>
+                </label>
+
+                <div class="plan-platform-editor">
+                  <div class="plan-subsection-heading">
+                    <strong>플랫폼 아이콘</strong>
+                    <small>PLAN 포스터 이미지 위에 표시할 플랫폼을 선택합니다.</small>
+                  </div>
+                  <div id="planPlatformList" class="plan-platform-list"></div>
+                </div>
+              </form>
+            </div>
+          </section>
+        </div>
+      </details>
     </section>
 
     <section class="preview-panel" aria-labelledby="previewTitle">
@@ -878,9 +954,11 @@
               <section class="archive-plan-preview" aria-labelledby="archivePlanTitle">
                 <div class="archive-page-heading">
                   <p class="eyebrow">PLAN</p>
-                  <h2 id="archivePlanTitle">제작 계획</h2>
+                  <h2 id="archivePlanTitle">개봉 예정</h2>
+                  <p>곧 공개될 이야기와 현재 제작 중인 작품들</p>
                 </div>
-                <div class="archive-plan-placeholder">
+                <div id="previewPlanGrid" class="archive-plan-grid"></div>
+                <div id="previewPlanEmpty" class="archive-plan-empty">
                   <span aria-hidden="true">＋</span>
                   <strong>COMING SOON</strong>
                   <p>제작 예정 콘텐츠가 이곳에 표시됩니다.</p>
@@ -1067,6 +1145,22 @@
     </div>
   </dialog>
 
+
+  <dialog class="plan-preview-modal" id="planPreviewModal" aria-labelledby="planPreviewModalTitle">
+    <div class="plan-preview-modal-shell">
+      <button id="planPreviewModalClose" class="plan-preview-modal-close" type="button" aria-label="제작 계획 닫기">×</button>
+      <div class="plan-preview-modal-image-wrap">
+        <img id="planPreviewModalImage" src="" alt="" hidden>
+        <div id="planPreviewModalImageFallback" class="plan-preview-modal-image-fallback">COMING SOON</div>
+        <div id="planPreviewModalPlatforms" class="plan-preview-modal-platforms"></div>
+      </div>
+      <article class="plan-preview-modal-content">
+        <p id="planPreviewModalStatus" class="plan-preview-modal-status"></p>
+        <h2 id="planPreviewModalTitle"></h2>
+        <div id="planPreviewModalDescription" class="plan-preview-modal-description"></div>
+      </article>
+    </div>
+  </dialog>
 
   <!-- 캐릭터 일괄 등록 -->
   <dialog id="characterBulkImportDialog" class="character-bulk-dialog" aria-labelledby="characterBulkImportTitle">

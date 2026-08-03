@@ -4875,7 +4875,7 @@ body.character-filter-picker-open { overflow: hidden; }
 
 /* =========================================================
    Horizontal archive prototype
-   기존 기능은 유지하고 공개 미리보기 배치와 신작 표시만 확장합니다.
+   기능과 데이터 구조는 유지하고 공개 미리보기의 배치만 변경합니다.
    ========================================================= */
 
 :root {
@@ -5186,7 +5186,6 @@ body.character-filter-picker-open { overflow: hidden; }
 
 /* 썸네일은 이미지 + 제목 + 한 줄 소개만 */
 .archive-pages .character-preview-card-genres,
-.archive-pages .character-preview-card-platforms,
 .archive-pages .character-preview-card-more,
 .archive-pages .world-card-meta,
 .archive-pages .world-card-tags,
@@ -5327,12 +5326,213 @@ body.character-filter-picker-open { overflow: hidden; }
   font-size: .68rem;
 }
 
-/* PLAN is intentionally visual-only in this prototype. */
-.archive-plan-preview {
-  min-height: 570px;
+/* PLAN editor */
+.plan-editor-section {
+  margin-top: 2.2rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--line);
 }
 
-.archive-plan-placeholder {
+.plan-editor-layout {
+  display: grid;
+  grid-template-columns: minmax(150px, .34fr) minmax(0, 1fr);
+  gap: .8rem;
+  margin-top: 1rem;
+}
+
+.plan-editor-sidebar,
+.plan-form,
+.plan-editor-empty {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--surface-2) 80%, transparent);
+}
+
+.plan-editor-sidebar { padding: .55rem; }
+.plan-editor-list { display: grid; gap: .45rem; }
+.plan-editor-list-item {
+  width: 100%;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  align-items: center;
+  gap: .65rem;
+  padding: .55rem;
+  border: 1px solid transparent;
+  border-radius: 13px;
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+}
+.plan-editor-list-item:hover,
+.plan-editor-list-item.is-active {
+  border-color: var(--line-strong);
+  background: var(--surface-3);
+}
+.plan-editor-list-item.is-active { border-color: var(--accent); }
+.plan-editor-list-thumb {
+  width: 42px;
+  aspect-ratio: 3 / 4;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 9px;
+  background: var(--surface-3);
+  color: var(--muted);
+  font-size: .55rem;
+  font-weight: 900;
+}
+.plan-editor-list-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.plan-editor-list-copy { min-width: 0; }
+.plan-editor-list-copy strong,
+.plan-editor-list-copy small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.plan-editor-list-copy strong { font-size: .78rem; }
+.plan-editor-list-copy small { color: var(--muted); font-size: .64rem; }
+.plan-editor-empty { display: grid; min-height: 210px; place-content: center; padding: 1.4rem; text-align: center; }
+.plan-editor-empty p { margin: .3rem 0 0; color: var(--muted); font-size: .78rem; }
+.plan-form { padding: 1rem; }
+.plan-form-actions { display: flex; justify-content: flex-end; gap: .5rem; margin-bottom: 1rem; }
+.plan-form-actions .secondary-button,
+.plan-danger-button { min-height: 38px; padding: .5rem .75rem; font-size: .74rem; }
+.plan-danger-button { border: 1px solid color-mix(in srgb, var(--danger) 55%, var(--line)); border-radius: 999px; background: transparent; color: var(--danger); font-weight: 800; }
+.plan-danger-button:hover { border-color: var(--danger); }
+.plan-image-editor { display: grid; grid-template-columns: 132px minmax(0, 1fr); gap: 1rem; align-items: center; margin-bottom: 1.2rem; }
+.plan-image-editor-preview {
+  display: grid;
+  width: 132px;
+  aspect-ratio: 3 / 4;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 15px;
+  background: linear-gradient(145deg, color-mix(in srgb, var(--violet) 20%, transparent), color-mix(in srgb, var(--accent) 8%, transparent)), var(--surface-3);
+  color: var(--muted);
+  font-size: .65rem;
+  font-weight: 900;
+  letter-spacing: .12em;
+}
+.plan-image-editor-preview img { width: 100%; height: 100%; object-fit: cover; }
+.plan-identity-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .7rem; }
+.plan-identity-grid > label + label { margin-top: 0; }
+.plan-platform-editor { margin-top: 1.4rem; }
+.plan-subsection-heading strong,
+.plan-subsection-heading small { display: block; }
+.plan-subsection-heading small { margin-top: .1rem; color: var(--muted); font-size: .68rem; }
+.plan-platform-list { display: flex; flex-wrap: wrap; gap: .45rem; margin-top: .7rem; }
+.plan-platform-option {
+  display: inline-grid;
+  grid-template-columns: auto 28px auto;
+  align-items: center;
+  gap: .45rem;
+  margin: 0;
+  padding: .45rem .6rem;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  cursor: pointer;
+}
+.plan-platform-option:has(input:checked) { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 7%, transparent); }
+.plan-platform-option input { width: 17px; height: 17px; min-height: 0; margin: 0; padding: 0; }
+.plan-platform-icon { width: 28px; height: 28px; display: grid; place-items: center; overflow: hidden; border-radius: 8px; background: var(--surface-3); font-size: .65rem; font-weight: 850; }
+.plan-platform-icon img { width: 100%; height: 100%; padding: 4px; object-fit: contain; }
+.plan-platform-option > span:last-child { font-size: .72rem; font-weight: 800; }
+
+/* Character NEW and platform marks */
+.character-new-mark {
+  position: absolute;
+  z-index: 3;
+  top: .42rem;
+  right: .42rem;
+  display: grid;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--accent) 68%, white 16%);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--accent) 88%, #111);
+  color: var(--accent-ink);
+  box-shadow: 0 5px 16px rgba(0,0,0,.28);
+  font-size: .6rem;
+  font-weight: 950;
+}
+.archive-pages .character-preview-card-platforms {
+  right: .42rem;
+  bottom: .42rem;
+  display: flex;
+  gap: .22rem;
+}
+.archive-pages .character-preview-platform-dot {
+  width: 20px;
+  height: 20px;
+  border-color: rgba(255,255,255,.22);
+  background: rgba(9,9,13,.82);
+  backdrop-filter: blur(5px);
+}
+
+/* PLAN poster wall */
+.archive-plan-preview { min-height: 570px; }
+.archive-page-heading > p:last-child { margin: .25rem 0 0; color: var(--muted); font-size: .72rem; }
+.archive-plan-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: .85rem;
+  margin-top: 1rem;
+}
+.archive-plan-card { min-width: 0; }
+.archive-plan-card-button {
+  width: 100%;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--surface-2) 84%, transparent);
+  color: var(--text);
+  text-align: left;
+  transition: transform .2s ease, border-color .2s ease, background .2s ease;
+}
+.archive-plan-card-button:hover { transform: translateY(-3px) rotate(-.2deg); border-color: color-mix(in srgb, var(--accent) 62%, var(--line)); background: var(--surface-2); }
+.archive-plan-card-image { position: relative; aspect-ratio: 3 / 4; overflow: hidden; background: var(--surface-3); }
+.archive-plan-card-image > img { width: 100%; height: 100%; object-fit: cover; transition: transform .3s ease; }
+.archive-plan-card-button:hover .archive-plan-card-image > img { transform: scale(1.025); }
+.archive-plan-card-image-fallback { width: 100%; height: 100%; display: grid; place-items: center; color: var(--muted); font-size: .6rem; font-weight: 900; letter-spacing: .12em; }
+.archive-plan-status {
+  position: absolute;
+  z-index: 2;
+  top: .48rem;
+  left: .48rem;
+  max-width: calc(100% - .96rem);
+  padding: .24rem .48rem;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--accent) 52%, transparent);
+  border-radius: 999px;
+  background: rgba(10,10,14,.78);
+  color: var(--accent);
+  backdrop-filter: blur(8px);
+  font-size: .56rem;
+  font-weight: 900;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.archive-plan-platforms { position: absolute; right: .45rem; bottom: .45rem; display: flex; gap: .22rem; }
+.archive-plan-platform-dot,
+.plan-preview-modal-platform-dot {
+  display: grid;
+  width: 21px;
+  height: 21px;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 50%;
+  background: rgba(10,10,14,.82);
+  color: var(--text);
+  font-size: .56rem;
+  font-weight: 850;
+}
+.archive-plan-platform-dot img,
+.plan-preview-modal-platform-dot img { width: 100%; height: 100%; padding: 3px; object-fit: contain; }
+.archive-plan-card-body { padding: .62rem .65rem .7rem; }
+.archive-plan-card-body h3 { margin: 0; overflow: hidden; font-size: .82rem; line-height: 1.35; text-overflow: ellipsis; white-space: nowrap; }
+.archive-plan-card-body p { display: -webkit-box; min-height: 2.7em; margin: .2rem 0 0; overflow: hidden; color: var(--muted); font-size: .62rem; line-height: 1.4; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.archive-plan-empty {
   display: grid;
   min-height: 430px;
   place-content: center;
@@ -5342,21 +5542,52 @@ body.character-filter-picker-open { overflow: hidden; }
   color: var(--muted);
   text-align: center;
 }
+.archive-plan-empty > span { color: var(--accent); font-size: 2rem; }
+.archive-plan-empty strong { margin-top: .65rem; color: var(--text); }
+.archive-plan-empty p { max-width: 28rem; margin: .25rem auto 0; font-size: .76rem; }
 
-.archive-plan-placeholder > span {
-  color: var(--accent);
-  font-size: 2rem;
-}
-
-.archive-plan-placeholder strong {
-  margin-top: .65rem;
+/* PLAN small popup card */
+.plan-preview-modal {
+  width: min(690px, calc(100% - 24px));
+  max-height: calc(100dvh - 24px);
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--line-strong);
+  border-radius: 22px;
+  background: var(--surface);
   color: var(--text);
+  box-shadow: var(--shadow);
+}
+.plan-preview-modal::backdrop { background: rgba(5,5,8,.78); backdrop-filter: blur(10px); }
+.plan-preview-modal-shell { position: relative; display: grid; grid-template-columns: minmax(180px, .72fr) minmax(0, 1.28fr); min-height: 330px; }
+.plan-preview-modal-close { position: absolute; z-index: 4; top: .7rem; right: .7rem; width: 38px; height: 38px; border: 1px solid var(--line-strong); border-radius: 50%; background: rgba(12,12,16,.74); color: var(--text); font-size: 1.3rem; }
+.plan-preview-modal-image-wrap { position: relative; min-height: 330px; overflow: hidden; background: var(--surface-2); }
+.plan-preview-modal-image-wrap > img { width: 100%; height: 100%; object-fit: cover; }
+.plan-preview-modal-image-fallback { width: 100%; height: 100%; min-height: 330px; display: grid; place-items: center; color: var(--muted); font-size: .65rem; font-weight: 900; letter-spacing: .12em; }
+.plan-preview-modal-platforms { position: absolute; right: .65rem; bottom: .65rem; display: flex; gap: .3rem; }
+.plan-preview-modal-platform-dot { width: 28px; height: 28px; }
+.plan-preview-modal-content { max-height: calc(100dvh - 24px); padding: 2.2rem 2rem; overflow-y: auto; }
+.plan-preview-modal-status { width: fit-content; max-width: 100%; margin: 0 0 .55rem; padding: .25rem .55rem; overflow: hidden; border: 1px solid color-mix(in srgb, var(--accent) 52%, var(--line)); border-radius: 999px; color: var(--accent); font-size: .64rem; font-weight: 900; text-overflow: ellipsis; white-space: nowrap; }
+.plan-preview-modal-content h2 { margin: 0; padding-right: 2rem; font-size: clamp(1.8rem, 4vw, 3rem); letter-spacing: -.06em; line-height: 1.05; }
+.plan-preview-modal-description { margin-top: 1.2rem; color: var(--muted); font-size: .86rem; line-height: 1.75; }
+.plan-preview-modal-description p { margin: 0; }
+.plan-preview-modal-description p + p { margin-top: .8rem; }
+body.plan-preview-modal-open { overflow: hidden; }
+
+@media (max-width: 760px) {
+  .plan-editor-layout { grid-template-columns: 1fr; }
+  .plan-editor-list { display: flex; overflow-x: auto; }
+  .plan-editor-list-item { flex: 0 0 170px; }
+  .plan-preview-modal-shell { grid-template-columns: 1fr; }
+  .plan-preview-modal-image-wrap,
+  .plan-preview-modal-image-fallback { min-height: 280px; max-height: 48vh; }
 }
 
-.archive-plan-placeholder p {
-  max-width: 28rem;
-  margin: .25rem auto 0;
-  font-size: .76rem;
+@media (max-width: 560px) {
+  .plan-image-editor,
+  .plan-identity-grid { grid-template-columns: 1fr; }
+  .plan-image-editor-preview { width: 100%; max-width: 180px; }
+  .plan-form-actions { justify-content: flex-start; flex-wrap: wrap; }
 }
 
 /* 배포 결과는 브라우저 폭을 넉넉하게 사용합니다. */
@@ -5409,6 +5640,10 @@ body.character-filter-picker-open { overflow: hidden; }
   #archiveTabCharacter:checked ~ .archive-site-shell .character-preview-grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
+
+  .archive-plan-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 }
 
 @container live-preview (max-width: 720px) {
@@ -5444,7 +5679,8 @@ body.character-filter-picker-open { overflow: hidden; }
   }
 
   #archiveTabWorld:checked ~ .archive-site-shell .world-grid,
-  #archiveTabCharacter:checked ~ .archive-site-shell .character-preview-grid {
+  #archiveTabCharacter:checked ~ .archive-site-shell .character-preview-grid,
+  .archive-plan-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
@@ -5477,7 +5713,8 @@ body.character-filter-picker-open { overflow: hidden; }
   .archive-pages .character-featured-grid,
   .archive-pages .world-grid,
   #archiveTabWorld:checked ~ .archive-site-shell .world-grid,
-  #archiveTabCharacter:checked ~ .archive-site-shell .character-preview-grid {
+  #archiveTabCharacter:checked ~ .archive-site-shell .character-preview-grid,
+  .archive-plan-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -5496,139 +5733,4 @@ body.character-filter-picker-open { overflow: hidden; }
 #archiveTabWorld:checked ~ .archive-site-shell #previewWorldToggleWrap,
 #archiveTabCharacter:checked ~ .archive-site-shell #previewCharacterToggleWrap {
   display: none !important;
-}
-
-
-/* ---------------------------------------------------------
-   Compact character status controls + thumbnail markers
-   --------------------------------------------------------- */
-.character-world-featured-grid.character-status-row {
-  grid-template-columns: minmax(160px, .72fr) minmax(220px, 1.28fr);
-  gap: .65rem;
-  align-items: end;
-}
-
-.character-status-options {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: .55rem;
-}
-
-.character-compact-option {
-  display: flex;
-  min-width: 0;
-  min-height: 44px;
-  align-items: center;
-  justify-content: center;
-  gap: .48rem;
-  margin: 0;
-  padding: .58rem .72rem;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: color-mix(in srgb, var(--surface-2) 72%, transparent);
-  color: var(--muted);
-  cursor: pointer;
-  font-size: .75rem;
-  font-weight: 850;
-  line-height: 1;
-}
-
-.character-compact-option:hover {
-  border-color: var(--line-strong);
-  color: var(--text);
-}
-
-.character-compact-option:has(input:checked) {
-  border-color: var(--accent);
-  color: var(--text);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 32%, transparent);
-}
-
-.character-compact-option input {
-  width: 17px;
-  height: 17px;
-  min-height: 0;
-  margin: 0;
-  padding: 0;
-  accent-color: var(--accent);
-}
-
-.character-compact-option span {
-  display: inline-flex;
-  min-width: 0;
-  align-items: center;
-  gap: .32rem;
-  white-space: nowrap;
-}
-
-.character-compact-option b {
-  color: var(--accent);
-  font-size: .68rem;
-}
-
-.character-new-option b {
-  display: grid;
-  width: 18px;
-  height: 18px;
-  place-items: center;
-  border: 1px solid color-mix(in srgb, var(--accent) 72%, transparent);
-  border-radius: 50%;
-  background: color-mix(in srgb, var(--accent) 12%, transparent);
-  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
-  font-size: .62rem;
-}
-
-.character-new-badge {
-  position: absolute;
-  z-index: 4;
-  top: .45rem;
-  right: .45rem;
-  display: grid;
-  width: 22px;
-  height: 22px;
-  place-items: center;
-  border: 1px solid color-mix(in srgb, var(--accent) 72%, rgba(255,255,255,.22));
-  border-radius: 50%;
-  background: color-mix(in srgb, var(--bg) 78%, transparent);
-  color: var(--accent);
-  box-shadow: 0 5px 16px rgba(0, 0, 0, .28);
-  backdrop-filter: blur(8px);
-  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
-  font-size: .64rem;
-  font-weight: 950;
-  line-height: 1;
-}
-
-/* 프로토타입에서 숨겼던 플랫폼을 이미지 우측 하단에 다시 표시합니다. */
-.archive-pages .character-preview-card-platforms {
-  display: flex !important;
-  z-index: 4;
-  right: .42rem;
-  bottom: .42rem;
-  gap: .22rem;
-}
-
-.archive-pages .character-preview-platform-dot {
-  width: 20px;
-  height: 20px;
-  border-color: rgba(255,255,255,.26);
-  background: rgba(8,8,12,.76);
-  box-shadow: 0 4px 12px rgba(0,0,0,.24);
-  backdrop-filter: blur(8px);
-}
-
-.archive-pages .character-preview-platform-dot img {
-  padding: 3px;
-}
-
-@container (max-width: 520px) {
-  .character-world-featured-grid.character-status-row {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 620px) {
-  .character-status-options {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
 }

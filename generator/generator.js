@@ -19,7 +19,8 @@
       links: []
     },
     worlds: [],
-    characters: []
+    characters: [],
+    plans: []
   };
 
   const ADMIN_FALLBACK = {
@@ -144,6 +145,7 @@ function normalizeGenreId(value) {
   let worldPreviewExpanded = false;
   let selectedCharacterId = "";
   let characterPreviewExpanded = false;
+  let selectedPlanId = "";
   const EDITOR_COLLECTION_PAGE_SIZE = 24;
   let worldEditorSearchQuery = "";
   let worldEditorVisibleCount = EDITOR_COLLECTION_PAGE_SIZE;
@@ -166,6 +168,9 @@ function normalizeGenreId(value) {
   const characterImageBlobs = new Map();
   const characterImagePreviewUrls = new Map();
   const missingCharacterImageIds = new Set();
+  const planImageBlobs = new Map();
+  const planImagePreviewUrls = new Map();
+  const missingPlanImageIds = new Set();
   const musicBlobs = new Map();
   const musicPreviewUrls = new Map();
   const missingMusicIds = new Set();
@@ -295,6 +300,23 @@ const elements = {
     addCharacterContentButton: document.querySelector("#addCharacterContentButton"),
     characterContentList: document.querySelector("#characterContentList"),
 
+    addPlanButton: document.querySelector("#addPlanButton"),
+    planEditorList: document.querySelector("#planEditorList"),
+    planEditorEmpty: document.querySelector("#planEditorEmpty"),
+    planForm: document.querySelector("#planForm"),
+    movePlanUpButton: document.querySelector("#movePlanUpButton"),
+    movePlanDownButton: document.querySelector("#movePlanDownButton"),
+    deletePlanButton: document.querySelector("#deletePlanButton"),
+    planImageInput: document.querySelector("#planImageInput"),
+    planImageEditorPreview: document.querySelector("#planImageEditorPreview"),
+    planImageEditorFallback: document.querySelector("#planImageEditorFallback"),
+    planImageStorageStatus: document.querySelector("#planImageStorageStatus"),
+    removePlanImageButton: document.querySelector("#removePlanImageButton"),
+    planTitleInput: document.querySelector("#planTitleInput"),
+    planStatusInput: document.querySelector("#planStatusInput"),
+    planDescriptionInput: document.querySelector("#planDescriptionInput"),
+    planPlatformList: document.querySelector("#planPlatformList"),
+
     previewSiteTitle: document.querySelector("#previewSiteTitle"),
     previewSiteDescription: document.querySelector("#previewSiteDescription"),
     previewCreatorName: document.querySelector("#previewCreatorName"),
@@ -367,6 +389,17 @@ const elements = {
     characterPreviewWorldSummary: document.querySelector("#characterPreviewWorldSummary"),
     characterPreviewContentSection: document.querySelector("#characterPreviewContentSection"),
     characterPreviewContents: document.querySelector("#characterPreviewContents"),
+
+    previewPlanGrid: document.querySelector("#previewPlanGrid"),
+    previewPlanEmpty: document.querySelector("#previewPlanEmpty"),
+    planPreviewModal: document.querySelector("#planPreviewModal"),
+    planPreviewModalClose: document.querySelector("#planPreviewModalClose"),
+    planPreviewModalImage: document.querySelector("#planPreviewModalImage"),
+    planPreviewModalImageFallback: document.querySelector("#planPreviewModalImageFallback"),
+    planPreviewModalPlatforms: document.querySelector("#planPreviewModalPlatforms"),
+    planPreviewModalStatus: document.querySelector("#planPreviewModalStatus"),
+    planPreviewModalTitle: document.querySelector("#planPreviewModalTitle"),
+    planPreviewModalDescription: document.querySelector("#planPreviewModalDescription"),
 
     saveStatus: document.querySelector("#saveStatus"),
     imageDropZones: [...document.querySelectorAll("[data-image-drop-target]")]
@@ -849,7 +882,7 @@ const elements = {
         normalizeString(tag, `characters[${index}].tags[${tagIndex}]`).trim()
       ).filter(Boolean),
       featured: character.featured === true,
-      isNew: character.isNew === true,
+      newRelease: character.newRelease === true,
       images: rawImages.map((image, imageIndex) =>
         normalizeCharacterImage(image, `characters[${index}].images[${imageIndex}]`)
       ).filter(Boolean),
@@ -876,6 +909,39 @@ const elements = {
       music: rawMusic.map((track, trackIndex) =>
         normalizeMusicTrack(track, `characters[${index}]`, trackIndex)
       )
+    };
+  }
+
+
+  function normalizePlan(plan, index) {
+    if (!isPlainObject(plan)) {
+      throw new Error(`plans[${index}] 항목의 형식이 올바르지 않습니다.`);
+    }
+
+    const id = normalizeString(plan.id, `plans[${index}].id`).trim();
+    if (!id) throw new Error(`plans[${index}].id가 비어 있습니다.`);
+
+    const rawDescription = plan.description || [];
+    const rawPlatforms = plan.platforms || [];
+    if (!Array.isArray(rawDescription)) {
+      throw new Error(`plans[${index}].description 항목은 배열이어야 합니다.`);
+    }
+    if (!Array.isArray(rawPlatforms)) {
+      throw new Error(`plans[${index}].platforms 항목은 배열이어야 합니다.`);
+    }
+
+    return {
+      ...cloneJson(plan),
+      id,
+      image: normalizeCharacterImage(plan.image, `plans[${index}].image`),
+      title: normalizeString(plan.title, `plans[${index}].title`),
+      status: normalizeString(plan.status, `plans[${index}].status`),
+      description: rawDescription.map((paragraph, paragraphIndex) =>
+        normalizeString(paragraph, `plans[${index}].description[${paragraphIndex}]`).trim()
+      ).filter(Boolean),
+      platforms: [...new Set(rawPlatforms.map((platformId, platformIndex) =>
+        normalizeString(platformId, `plans[${index}].platforms[${platformIndex}]`).trim()
+      ).filter(Boolean))]
     };
   }
 
@@ -929,6 +995,10 @@ const elements = {
       throw new Error("characters 항목은 배열이어야 합니다.");
     }
 
+    if (rawProject.plans !== undefined && !Array.isArray(rawProject.plans)) {
+      throw new Error("plans 항목은 배열이어야 합니다.");
+    }
+
     const base = cloneJson(emptyProject);
     const rawSite = rawProject.site || {};
     const rawCreator = rawProject.creator || {};
@@ -947,6 +1017,7 @@ const elements = {
 
     const worlds = (rawProject.worlds || []).map(normalizeWorld);
     const characters = (rawProject.characters || []).map(normalizeCharacter);
+    const plans = (rawProject.plans || []).map(normalizePlan);
     const worldIds = new Set();
 
     for (const world of worlds) {
@@ -962,6 +1033,14 @@ const elements = {
         throw new Error(`중복된 캐릭터 ID가 있습니다: ${character.id}`);
       }
       characterIds.add(character.id);
+    }
+
+    const planIds = new Set();
+    for (const plan of plans) {
+      if (planIds.has(plan.id)) {
+        throw new Error(`중복된 제작 계획 ID가 있습니다: ${plan.id}`);
+      }
+      planIds.add(plan.id);
     }
 
     const links = (rawCreator.links || []).map((link, index) => {
@@ -1016,7 +1095,8 @@ const elements = {
         links
       },
       worlds,
-      characters
+      characters,
+      plans
     };
   }
 
@@ -1139,11 +1219,23 @@ const elements = {
       genres: [],
       tags: [],
       featured: false,
-      isNew: false,
+      newRelease: false,
       images: [],
       platforms: [],
       contents: [],
       music: []
+    };
+  }
+
+
+  function createPlan() {
+    return {
+      id: createEntityId("plan"),
+      image: "",
+      title: "",
+      status: "",
+      description: [],
+      platforms: []
     };
   }
 
@@ -2655,6 +2747,7 @@ blocks.forEach(({ block, number }) => {
     renderMusicEditor(ownerType);
     renderWorldPreview();
     renderCharacterPreview();
+    renderPlanPreview();
     scheduleAutosave();
 
     requestAnimationFrame(() => {
@@ -2998,6 +3091,10 @@ blocks.forEach(({ block, number }) => {
     return isPlainObject(world?.image) ? world.image : null;
   }
 
+  function getPlanImageMetadata(plan) {
+    return isPlainObject(plan?.image) ? plan.image : null;
+  }
+
   function splitTags(value) {
     const seen = new Set();
 
@@ -3023,6 +3120,12 @@ blocks.forEach(({ block, number }) => {
     const storedUrl = worldImagePreviewUrls.get(world.id);
     if (storedUrl) return storedUrl;
     return typeof world.image === "string" ? legacyImageUrl(world.image) : "";
+  }
+
+  function planImageUrl(plan) {
+    if (!plan?.image) return "";
+    if (typeof plan.image === "string") return legacyImageUrl(plan.image);
+    return planImagePreviewUrls.get(plan.id) || "";
   }
 
   function characterImageEntryUrl(image) {
@@ -3486,6 +3589,22 @@ blocks.forEach(({ block, number }) => {
     missingCharacterImageIds.clear();
   }
 
+  function releasePlanImageObjectUrl(planId) {
+    const url = planImagePreviewUrls.get(planId);
+    if (url) URL.revokeObjectURL(url);
+    planImagePreviewUrls.delete(planId);
+    planImageBlobs.delete(planId);
+    missingPlanImageIds.delete(planId);
+  }
+
+  function releaseAllPlanImageObjectUrls() {
+    for (const planId of [...planImagePreviewUrls.keys()]) {
+      releasePlanImageObjectUrl(planId);
+    }
+    planImageBlobs.clear();
+    missingPlanImageIds.clear();
+  }
+
   function updateWorldImageStorageStatus() {
     const world = getSelectedWorld();
     if (!elements.worldImageStorageStatus || !world) return;
@@ -3844,16 +3963,6 @@ function renderCharacterGenres() {
     `).join("");
   }
 
-  function updateCharacterStatusControls() {
-    const featuredCount = project.characters.filter(
-      (character) => character.featured === true
-    ).length;
-
-    if (elements.characterFeaturedCount) {
-      elements.characterFeaturedCount.textContent = `${featuredCount}/3`;
-    }
-  }
-
   function populateCharacterFields() {
     const character = getSelectedCharacter();
     const hasCharacter = Boolean(character);
@@ -3864,8 +3973,11 @@ function renderCharacterGenres() {
     elements.characterNameInput.value = character.name || "";
     elements.characterSubtitleInput.value = character.subtitle || "";
     elements.characterFeaturedInput.checked = character.featured === true;
-    elements.characterNewInput.checked = character.isNew === true;
-    updateCharacterStatusControls();
+    elements.characterNewInput.checked = character.newRelease === true;
+    if (elements.characterFeaturedCount) {
+      const featuredCount = project.characters.filter((item) => item.featured).length;
+      elements.characterFeaturedCount.textContent = `${featuredCount}/3`;
+    }
     elements.characterTagsInput.value = (character.tags || []).join(", ");
     elements.characterDescriptionInput.value = bioArrayToText(character.description);
 
@@ -3916,7 +4028,7 @@ const genres = (character.genres || [])
         <button type="button" class="character-preview-card-button" data-preview-character="${escapeHtml(character.id)}" aria-label="${escapeHtml(character.name || "이름 없는 캐릭터")} 상세 보기">
           <div class="character-preview-card-image-wrap">
             ${image}
-            ${character.isNew ? '<span class="character-new-badge" title="신작" aria-label="신작">N</span>' : ""}
+            ${character.newRelease ? '<span class="character-new-mark" title="신작">N</span>' : ""}
             <div class="character-preview-card-platforms">${characterPlatformDots(character)}</div>
             ${
               hasPlayableMusic(character)
@@ -4690,15 +4802,16 @@ elements.characterPreviewModalTags.innerHTML = [
       character.featured = requestedFeatured;
     }
 
-    character.isNew = elements.characterNewInput.checked;
-    updateCharacterStatusControls();
-
+    character.newRelease = elements.characterNewInput.checked;
     character.name = elements.characterNameInput.value.trim();
     character.subtitle = elements.characterSubtitleInput.value.trim();
     character.worldId = elements.characterWorldSelect.value;
     character.tags = splitTags(elements.characterTagsInput.value);
     character.description = bioTextToArray(elements.characterDescriptionInput.value);
 
+    if (elements.characterFeaturedCount) {
+      elements.characterFeaturedCount.textContent = `${project.characters.filter((item) => item.featured).length}/3`;
+    }
     renderCharacterList();
     renderWorldCharacterLinks();
     renderCharacterPreview();
@@ -5877,6 +5990,255 @@ elements.characterPreviewModalTags.innerHTML = [
     applyPreviewWidth(stored, false);
   }
 
+
+  function getSelectedPlan() {
+    return project.plans.find((plan) => plan.id === selectedPlanId) || null;
+  }
+
+  function planPlatformDots(plan, modal = false) {
+    return (plan.platforms || []).map((platformId) => {
+      const platform = platformCatalog.get(platformId) || {
+        id: platformId,
+        name: platformId,
+        icon: ""
+      };
+      const className = modal
+        ? "plan-preview-modal-platform-dot"
+        : "archive-plan-platform-dot";
+      return platform.icon
+        ? `<span class="${className}" title="${escapeHtml(platform.name || platformId)}"><img src="${escapeHtml(platformIconUrl(platform))}" alt=""></span>`
+        : `<span class="${className}" title="${escapeHtml(platform.name || platformId)}">${escapeHtml(String(platform.name || platformId).slice(0, 1))}</span>`;
+    }).join("");
+  }
+
+  function updatePlanImageStorageStatus() {
+    const plan = getSelectedPlan();
+    if (!plan || !elements.planImageStorageStatus) return;
+    const metadata = getPlanImageMetadata(plan);
+    if (missingPlanImageIds.has(plan.id)) {
+      elements.planImageStorageStatus.textContent =
+        "저장된 PNG 파일을 찾을 수 없습니다. 이미지를 다시 선택해 주세요.";
+      return;
+    }
+    if (planImageBlobs.has(plan.id) && metadata) {
+      elements.planImageStorageStatus.textContent =
+        `브라우저에 저장됨: ${metadata.name} · ${formatBytes(metadata.size)}`;
+      return;
+    }
+    if (metadata) {
+      elements.planImageStorageStatus.textContent = "저장된 PNG를 확인하는 중입니다.";
+      return;
+    }
+    if (typeof plan.image === "string" && plan.image) {
+      elements.planImageStorageStatus.textContent =
+        "프로젝트의 기존 이미지 경로를 사용 중입니다. 새 이미지로 교체할 수 있습니다.";
+      return;
+    }
+    elements.planImageStorageStatus.textContent =
+      "PNG는 이 브라우저에 저장되어 새로고침 후에도 유지됩니다. 최대 10MB.";
+  }
+
+  function renderPlanImageEditorPreview() {
+    const plan = getSelectedPlan();
+    if (!plan) return;
+    const url = planImageUrl(plan);
+    elements.planImageEditorPreview.hidden = !url;
+    elements.planImageEditorFallback.hidden = Boolean(url);
+    elements.removePlanImageButton.hidden = !plan.image;
+    if (url) elements.planImageEditorPreview.src = url;
+    else elements.planImageEditorPreview.removeAttribute("src");
+    updatePlanImageStorageStatus();
+  }
+
+  function renderPlanList() {
+    if (project.plans.length === 0) {
+      elements.planEditorList.innerHTML =
+        '<p class="empty-message">등록된 제작 계획이 없습니다.</p>';
+      return;
+    }
+    elements.planEditorList.innerHTML = project.plans.map((plan, index) => {
+      const imageUrl = planImageUrl(plan);
+      const thumb = imageUrl
+        ? `<img src="${escapeHtml(imageUrl)}" alt="">`
+        : "POSTER";
+      return `
+        <button
+          type="button"
+          class="plan-editor-list-item ${plan.id === selectedPlanId ? "is-active" : ""}"
+          data-select-plan="${escapeHtml(plan.id)}"
+        >
+          <span class="plan-editor-list-thumb">${thumb}</span>
+          <span class="plan-editor-list-copy">
+            <strong>${escapeHtml(plan.title || `새 계획 ${index + 1}`)}</strong>
+            <small>${escapeHtml(plan.status || "제작 현황 미입력")}</small>
+          </span>
+        </button>
+      `;
+    }).join("");
+  }
+
+  function renderPlanPlatforms() {
+    const plan = getSelectedPlan();
+    if (!plan) return;
+    elements.planPlatformList.innerHTML = platformOptions.map((platform) => {
+      const checked = (plan.platforms || []).includes(platform.id);
+      const icon = platform.icon
+        ? `<img src="${escapeHtml(platformIconUrl(platform))}" alt="">`
+        : escapeHtml(String(platform.name || platform.id).slice(0, 1));
+      return `
+        <label class="plan-platform-option">
+          <input type="checkbox" value="${escapeHtml(platform.id)}" data-plan-platform ${checked ? "checked" : ""}>
+          <span class="plan-platform-icon">${icon}</span>
+          <span>${escapeHtml(platform.name || platform.id)}</span>
+        </label>
+      `;
+    }).join("");
+  }
+
+  function populatePlanFields() {
+    const plan = getSelectedPlan();
+    const hasPlan = Boolean(plan);
+    elements.planForm.hidden = !hasPlan;
+    elements.planEditorEmpty.hidden = hasPlan;
+    if (!plan) return;
+    elements.planTitleInput.value = plan.title || "";
+    elements.planStatusInput.value = plan.status || "";
+    elements.planDescriptionInput.value = bioArrayToText(plan.description);
+    const index = project.plans.findIndex((item) => item.id === plan.id);
+    elements.movePlanUpButton.disabled = index <= 0;
+    elements.movePlanDownButton.disabled = index < 0 || index >= project.plans.length - 1;
+    renderPlanImageEditorPreview();
+    renderPlanPlatforms();
+  }
+
+  function renderPlanEditor() {
+    if (!project.plans.some((plan) => plan.id === selectedPlanId)) {
+      selectedPlanId = project.plans[0]?.id || "";
+    }
+    renderPlanList();
+    populatePlanFields();
+  }
+
+  function syncPlanFromFields() {
+    const plan = getSelectedPlan();
+    if (!plan) return;
+    plan.title = elements.planTitleInput.value.trim();
+    plan.status = elements.planStatusInput.value.trim();
+    plan.description = bioTextToArray(elements.planDescriptionInput.value);
+    renderPlanList();
+    renderPlanPreview();
+    scheduleAutosave();
+  }
+
+  function updatePlanPlatform(input) {
+    const plan = getSelectedPlan();
+    if (!plan) return;
+    const ids = new Set(plan.platforms || []);
+    if (input.checked) ids.add(input.value);
+    else ids.delete(input.value);
+    plan.platforms = [...ids];
+    renderPlanPreview();
+    scheduleAutosave();
+  }
+
+  function addPlan() {
+    const plan = createPlan();
+    project.plans.push(plan);
+    selectedPlanId = plan.id;
+    renderPlanEditor();
+    renderPlanPreview();
+    scheduleAutosave();
+    elements.planTitleInput.focus();
+  }
+
+  function moveSelectedPlan(direction) {
+    const index = project.plans.findIndex((plan) => plan.id === selectedPlanId);
+    const nextIndex = index + direction;
+    if (index < 0 || nextIndex < 0 || nextIndex >= project.plans.length) return;
+    const [plan] = project.plans.splice(index, 1);
+    project.plans.splice(nextIndex, 0, plan);
+    renderPlanEditor();
+    renderPlanPreview();
+    scheduleAutosave();
+  }
+
+  async function deleteSelectedPlan() {
+    const plan = getSelectedPlan();
+    if (!plan) return;
+    if (!window.confirm(`“${plan.title || "제목 없는 계획"}”을 삭제할까요?`)) return;
+    const index = project.plans.findIndex((item) => item.id === plan.id);
+    const metadata = getPlanImageMetadata(plan);
+    releasePlanImageObjectUrl(plan.id);
+    project.plans.splice(index, 1);
+    selectedPlanId = project.plans[index]?.id || project.plans[index - 1]?.id || "";
+    renderPlanEditor();
+    renderPlanPreview();
+    scheduleAutosave();
+    if (metadata?.id) {
+      try { await deleteImageRecord(metadata.id); }
+      catch (error) { console.error(error); }
+    }
+  }
+
+  function planCardMarkup(plan) {
+    const imageUrl = planImageUrl(plan);
+    const image = imageUrl
+      ? `<img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(plan.title || "제작 계획")} 썸네일" loading="lazy">`
+      : '<span class="archive-plan-card-image-fallback">COMING SOON</span>';
+    const description = (plan.description || []).join(" ");
+    return `
+      <article class="archive-plan-card">
+        <button class="archive-plan-card-button" type="button" data-preview-plan="${escapeHtml(plan.id)}">
+          <div class="archive-plan-card-image">
+            ${image}
+            ${plan.status ? `<span class="archive-plan-status">${escapeHtml(plan.status)}</span>` : ""}
+            <div class="archive-plan-platforms">${planPlatformDots(plan)}</div>
+          </div>
+          <div class="archive-plan-card-body">
+            <h3>${escapeHtml(plan.title || "제목 없는 계획")}</h3>
+            <p>${escapeHtml(description || "소개글을 입력해 주세요.")}</p>
+          </div>
+        </button>
+      </article>
+    `;
+  }
+
+  function renderPlanPreview() {
+    const plans = project.plans || [];
+    elements.previewPlanGrid.innerHTML = plans.map(planCardMarkup).join("");
+    elements.previewPlanGrid.hidden = plans.length === 0;
+    elements.previewPlanEmpty.hidden = plans.length > 0;
+  }
+
+  function openPlanPreview(plan) {
+    if (!plan) return;
+    const imageUrl = planImageUrl(plan);
+    elements.planPreviewModalImage.hidden = !imageUrl;
+    elements.planPreviewModalImageFallback.hidden = Boolean(imageUrl);
+    if (imageUrl) {
+      elements.planPreviewModalImage.src = imageUrl;
+      elements.planPreviewModalImage.alt = `${plan.title || "제작 계획"} 썸네일`;
+    } else {
+      elements.planPreviewModalImage.removeAttribute("src");
+    }
+    elements.planPreviewModalPlatforms.innerHTML = planPlatformDots(plan, true);
+    elements.planPreviewModalPlatforms.hidden = !(plan.platforms || []).length;
+    elements.planPreviewModalStatus.textContent = plan.status || "";
+    elements.planPreviewModalStatus.hidden = !plan.status;
+    elements.planPreviewModalTitle.textContent = plan.title || "제목 없는 계획";
+    elements.planPreviewModalDescription.innerHTML = (plan.description || [])
+      .map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`)
+      .join("");
+    elements.planPreviewModalDescription.hidden = !(plan.description || []).length;
+    elements.planPreviewModal.showModal();
+    document.body.classList.add("plan-preview-modal-open");
+  }
+
+  function closePlanPreview() {
+    if (elements.planPreviewModal.open) elements.planPreviewModal.close();
+    document.body.classList.remove("plan-preview-modal-open");
+  }
+
   function renderPreview() {
     applyPreviewTheme();
     renderArchiveCounts();
@@ -6509,6 +6871,109 @@ elements.characterPreviewModalTags.innerHTML = [
     );
   }
 
+
+  async function storePlanImageFile(file) {
+    const plan = getSelectedPlan();
+    if (!file || !plan) return;
+    elements.planImageInput.disabled = true;
+    setSaveStatus("PLAN 썸네일 변환·저장 중…");
+    try {
+      const previousMetadata = getPlanImageMetadata(plan);
+      const sanitized = await sanitizeImageToPng(file, "PLAN 썸네일");
+      const id = createImageId();
+      const updatedAt = new Date().toISOString();
+      const record = {
+        id,
+        role: "plan-image",
+        ownerId: plan.id,
+        name: outputPngName(file, "plan-poster.png"),
+        type: "image/png",
+        size: sanitized.blob.size,
+        width: sanitized.width,
+        height: sanitized.height,
+        updatedAt,
+        blob: sanitized.blob
+      };
+      await putImageRecord(record);
+      plan.image = {
+        id,
+        name: record.name,
+        type: record.type,
+        size: record.size,
+        width: record.width,
+        height: record.height,
+        updatedAt
+      };
+      releasePlanImageObjectUrl(plan.id);
+      planImageBlobs.set(plan.id, sanitized.blob);
+      planImagePreviewUrls.set(plan.id, URL.createObjectURL(sanitized.blob));
+      missingPlanImageIds.delete(plan.id);
+      if (previousMetadata?.id && previousMetadata.id !== id) {
+        try { await deleteImageRecord(previousMetadata.id); }
+        catch (cleanupError) { console.error(cleanupError); }
+      }
+      renderPlanEditor();
+      renderPlanPreview();
+      saveProjectToStorage();
+      setSaveStatus("PLAN 썸네일이 새 PNG로 저장됨");
+    } catch (error) {
+      console.error(error);
+      window.alert(error.message || "PLAN 썸네일을 처리하지 못했습니다.");
+      setSaveStatus("PLAN 썸네일 저장 실패");
+    } finally {
+      elements.planImageInput.disabled = false;
+      elements.planImageInput.value = "";
+    }
+  }
+
+  async function handlePlanImageSelection() {
+    const file = elements.planImageInput.files?.[0] || null;
+    elements.planImageInput.value = "";
+    await storePlanImageFile(file);
+  }
+
+  async function removePlanImage() {
+    const plan = getSelectedPlan();
+    if (!plan) return;
+    const metadata = getPlanImageMetadata(plan);
+    releasePlanImageObjectUrl(plan.id);
+    plan.image = "";
+    renderPlanEditor();
+    renderPlanPreview();
+    saveProjectToStorage();
+    if (metadata?.id) {
+      try { await deleteImageRecord(metadata.id); }
+      catch (error) { console.error(error); }
+    }
+    setSaveStatus("PLAN 썸네일이 제거됨");
+  }
+
+  async function restorePlanImagesFromDatabase() {
+    releaseAllPlanImageObjectUrls();
+    let missingCount = 0;
+    for (const plan of project.plans || []) {
+      const metadata = getPlanImageMetadata(plan);
+      if (!metadata?.id) continue;
+      try {
+        const record = await getImageRecord(metadata.id);
+        if (!record?.blob || record.blob.type !== "image/png") {
+          missingPlanImageIds.add(plan.id);
+          missingCount += 1;
+          continue;
+        }
+        planImageBlobs.set(plan.id, record.blob);
+        planImagePreviewUrls.set(plan.id, URL.createObjectURL(record.blob));
+      } catch (error) {
+        console.error(error);
+        missingPlanImageIds.add(plan.id);
+        missingCount += 1;
+      }
+    }
+    renderPlanEditor();
+    renderPlanPreview();
+    return missingCount;
+  }
+
   async function routeImageFiles(target, files) {
     const candidates = [...(files || [])].filter(Boolean);
     if (candidates.length === 0) {
@@ -6538,6 +7003,14 @@ elements.characterPreviewModalTags.innerHTML = [
         return;
       }
       await addCharacterImageFiles(candidates);
+      return;
+    }
+    if (target === "plan") {
+      if (!getSelectedPlan()) {
+        window.alert("먼저 제작 계획을 선택해 주세요.");
+        return;
+      }
+      await storePlanImageFile(candidates[0]);
     }
   }
 
@@ -6594,17 +7067,20 @@ elements.characterPreviewModalTags.innerHTML = [
     releaseCreatorBackgroundObjectUrl();
     releaseAllWorldImageObjectUrls();
     releaseAllCharacterImageObjectUrls();
+    releaseAllPlanImageObjectUrls();
     releaseAllMusicObjectUrls();
     avatarRestoreMissing = false;
     creatorBackgroundRestoreMissing = false;
     selectedWorldId = project.worlds[0]?.id || "";
     selectedCharacterId = project.characters[0]?.id || "";
+    selectedPlanId = project.plans[0]?.id || "";
     worldPreviewExpanded = false;
     characterPreviewExpanded = false;
     populateFieldsFromProject();
     renderSocialLinks();
     renderWorldEditor();
     renderCharacterEditor();
+    renderPlanEditor();
     renderPreview();
 
     if (!restoreImages) return false;
@@ -6612,6 +7088,7 @@ elements.characterPreviewModalTags.innerHTML = [
     await restoreCreatorBackgroundFromDatabase();
     await restoreWorldImagesFromDatabase();
     await restoreCharacterImagesFromDatabase();
+    await restorePlanImagesFromDatabase();
     await restoreMusicFromDatabase();
     return avatarRestored;
   }
@@ -6961,12 +7438,14 @@ elements.characterPreviewModalTags.innerHTML = [
     );
     const characterModal = cloneDeployNode(elements.characterPreviewModal);
     const worldModal = cloneDeployNode(elements.worldPreviewModal);
+    const planModal = cloneDeployNode(elements.planPreviewModal);
 
     preview.classList.add("exported-preview-canvas");
     preview.style.cssText = deployThemeStyleText();
     filterPicker.style.cssText = deployThemeStyleText();
     characterModal.style.cssText = deployThemeStyleText();
     worldModal.style.cssText = deployThemeStyleText();
+    planModal.style.cssText = deployThemeStyleText();
 
     const title = escapeHtml(
       project.site.title || project.creator.name || "Character Portfolio"
@@ -6991,6 +7470,7 @@ elements.characterPreviewModalTags.innerHTML = [
   ${filterPicker.outerHTML}
   ${characterModal.outerHTML}
   ${worldModal.outerHTML}
+  ${planModal.outerHTML}
 
   <script src="./assets/site-main.js"></script>
   <script src="./assets/site-worlds.js"></script>
@@ -7008,7 +7488,8 @@ elements.characterPreviewModalTags.innerHTML = [
       site: {},
       creator: { bio: [], links: [] },
       worlds: [],
-      characters: []
+      characters: [],
+      plans: []
     };
     const catalog = window.PORTFOLIO_CATALOG || {
       profileLinkServices: [],
@@ -7053,6 +7534,16 @@ elements.characterPreviewModalTags.innerHTML = [
       previewCharacterCount: document.querySelector("#previewCharacterCount"),
       previewWorldCount: document.querySelector("#previewWorldCount"),
       previewGenreCount: document.querySelector("#previewGenreCount"),
+      previewPlanGrid: document.querySelector("#previewPlanGrid"),
+      previewPlanEmpty: document.querySelector("#previewPlanEmpty"),
+      planModal: document.querySelector("#planPreviewModal"),
+      planModalClose: document.querySelector("#planPreviewModalClose"),
+      planModalImage: document.querySelector("#planPreviewModalImage"),
+      planModalImageFallback: document.querySelector("#planPreviewModalImageFallback"),
+      planModalPlatforms: document.querySelector("#planPreviewModalPlatforms"),
+      planModalStatus: document.querySelector("#planPreviewModalStatus"),
+      planModalTitle: document.querySelector("#planPreviewModalTitle"),
+      planModalDescription: document.querySelector("#planPreviewModalDescription"),
       previewFeaturedSection: document.querySelector("#previewFeaturedSection"),
       previewFeaturedGrid: document.querySelector("#previewFeaturedGrid"),
       previewWorldSection: document.querySelector("#previewWorldSection"),
@@ -7386,7 +7877,7 @@ elements.characterPreviewModalTags.innerHTML = [
           <button type="button" class="character-preview-card-button" data-preview-character="${escapeHtml(character.id)}">
             <div class="character-preview-card-image-wrap">
               ${image}
-              ${character.isNew ? '<span class="character-new-badge" title="신작" aria-label="신작">N</span>' : ""}
+              ${character.newRelease ? '<span class="character-new-mark" title="신작">N</span>' : ""}
               <div class="character-preview-card-platforms">${platformDots(character)}</div>
               ${hasPlayableMusic(character) ? '<span class="archive-music-mark" title="음악 있음" aria-hidden="true">♫</span>' : ""}
             </div>
@@ -7433,6 +7924,85 @@ elements.characterPreviewModalTags.innerHTML = [
           </button>
         </article>
       `;
+    }
+
+
+    function planImageUrl(plan) {
+      return typeof plan?.image === "string" ? plan.image : "";
+    }
+
+    function planPlatformDots(plan, modal = false) {
+      return (plan.platforms || []).map((platformId) => {
+        const platform = platformCatalog.get(platformId) || {
+          id: platformId,
+          name: platformId,
+          icon: ""
+        };
+        const className = modal
+          ? "plan-preview-modal-platform-dot"
+          : "archive-plan-platform-dot";
+        return platform.icon
+          ? `<span class="${className}" title="${escapeHtml(platform.name || platformId)}"><img src="${escapeHtml(platform.icon)}" alt=""></span>`
+          : `<span class="${className}" title="${escapeHtml(platform.name || platformId)}">${escapeHtml(String(platform.name || platformId).slice(0, 1))}</span>`;
+      }).join("");
+    }
+
+    function planCardMarkup(plan) {
+      const imageUrl = planImageUrl(plan);
+      const image = imageUrl
+        ? `<img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(plan.title || "제작 계획")} 썸네일" loading="lazy">`
+        : '<span class="archive-plan-card-image-fallback">COMING SOON</span>';
+      return `
+        <article class="archive-plan-card">
+          <button class="archive-plan-card-button" type="button" data-preview-plan="${escapeHtml(plan.id)}">
+            <div class="archive-plan-card-image">
+              ${image}
+              ${plan.status ? `<span class="archive-plan-status">${escapeHtml(plan.status)}</span>` : ""}
+              <div class="archive-plan-platforms">${planPlatformDots(plan)}</div>
+            </div>
+            <div class="archive-plan-card-body">
+              <h3>${escapeHtml(plan.title || "제목 없는 계획")}</h3>
+              <p>${escapeHtml((plan.description || []).join(" ") || "소개글을 입력해 주세요.")}</p>
+            </div>
+          </button>
+        </article>
+      `;
+    }
+
+    function renderPlans() {
+      const plans = project.plans || [];
+      elements.previewPlanGrid.innerHTML = plans.map(planCardMarkup).join("");
+      elements.previewPlanGrid.hidden = plans.length === 0;
+      elements.previewPlanEmpty.hidden = plans.length > 0;
+    }
+
+    function openPlan(plan) {
+      if (!plan) return;
+      const imageUrl = planImageUrl(plan);
+      elements.planModalImage.hidden = !imageUrl;
+      elements.planModalImageFallback.hidden = Boolean(imageUrl);
+      if (imageUrl) {
+        elements.planModalImage.src = imageUrl;
+        elements.planModalImage.alt = `${plan.title || "제작 계획"} 썸네일`;
+      } else {
+        elements.planModalImage.removeAttribute("src");
+      }
+      elements.planModalPlatforms.innerHTML = planPlatformDots(plan, true);
+      elements.planModalPlatforms.hidden = !(plan.platforms || []).length;
+      elements.planModalStatus.textContent = plan.status || "";
+      elements.planModalStatus.hidden = !plan.status;
+      elements.planModalTitle.textContent = plan.title || "제목 없는 계획";
+      elements.planModalDescription.innerHTML = (plan.description || [])
+        .map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`)
+        .join("");
+      elements.planModalDescription.hidden = !(plan.description || []).length;
+      elements.planModal.showModal();
+      document.body.classList.add("plan-preview-modal-open");
+    }
+
+    function closePlanModal() {
+      if (elements.planModal.open) elements.planModal.close();
+      document.body.classList.remove("plan-preview-modal-open");
     }
 
     function renderFeatured() {
@@ -7974,6 +8544,14 @@ function renderCharacters() {
           openCharacter(character);
           return;
         }
+        const planButton = event.target.closest("[data-preview-plan]");
+        if (planButton) {
+          const plan = (project.plans || []).find(
+            (item) => item.id === planButton.dataset.previewPlan
+          );
+          openPlan(plan);
+          return;
+        }
         const worldButton = event.target.closest("[data-preview-world]");
         if (worldButton) {
           const world = (project.worlds || []).find(
@@ -8022,6 +8600,10 @@ function renderCharacters() {
       });
       elements.characterModalClose.addEventListener("click", closeCharacterModal);
       elements.worldModalClose.addEventListener("click", closeWorldModal);
+      elements.planModalClose.addEventListener("click", closePlanModal);
+      elements.planModal.addEventListener("click", (event) => {
+        if (event.target === elements.planModal) closePlanModal();
+      });
       elements.characterSoundtrack.addEventListener("change", (event) => {
         const select = event.target.closest("[data-soundtrack-select]");
         if (!select) return;
@@ -8058,6 +8640,9 @@ function renderCharacters() {
         stopSoundtrack(elements.worldSoundtrack);
         document.body.classList.remove("world-preview-modal-open");
       });
+      elements.planModal.addEventListener("close", () => {
+        document.body.classList.remove("plan-preview-modal-open");
+      });
       window.addEventListener("resize", () => {
         updateWorldLimit();
         updateCharacterLimit();
@@ -8079,6 +8664,7 @@ function renderCharacters() {
       renderProfile();
       renderFeatured();
       renderWorlds();
+      renderPlans();
       renderFilters();
       renderCharacters();
       bindEvents();
@@ -8299,6 +8885,30 @@ function renderCharacters() {
       }
     }
 
+
+    for (let planIndex = 0; planIndex < (normalizedProject.plans || []).length; planIndex += 1) {
+      const originalPlan = normalizedProject.plans[planIndex];
+      const deployPlan = deployProject.plans[planIndex];
+      if (!originalPlan.image) continue;
+      const metadata = isPlainObject(originalPlan.image) ? originalPlan.image : null;
+      const planKey = safeDeployAssetSegment(originalPlan.id, `plan-${planIndex + 1}`);
+      const blob = await resolveDeployBlob({
+        preferredBlob: planImageBlobs.get(originalPlan.id),
+        storedBlob: metadata?.id ? records.get(metadata.id)?.blob : null,
+        previewUrl: planImagePreviewUrls.get(originalPlan.id) || "",
+        legacyUrl: typeof originalPlan.image === "string"
+          ? legacyImageUrl(originalPlan.image)
+          : "",
+        label: `제작 계획 “${originalPlan.title || planIndex + 1}” PNG`
+      });
+      deployPlan.image = await addPng(
+        mainEntries,
+        `assets/images/plan-${planKey}.png`,
+        blob,
+        `제작 계획 “${originalPlan.title || planIndex + 1}” PNG`
+      );
+    }
+
     if (missing.length > 0) {
       throw new Error(
         `배포 ZIP에 넣을 실제 파일 ${missing.length}개를 읽지 못했습니다. 편집 화면에서 해당 파일을 다시 선택해 주세요.\n\n${missing.join("\n")}`
@@ -8356,11 +8966,11 @@ function renderCharacters() {
       `window.PORTFOLIO_CATALOG = ${JSON.stringify(deployCatalog, null, 2)};`
     ].join("\n\n");
     const worldDataSource = [
-      `window.PORTFOLIO_PROJECT = window.PORTFOLIO_PROJECT || { site: {}, creator: { bio: [], links: [] }, worlds: [], characters: [] };`,
+      `window.PORTFOLIO_PROJECT = window.PORTFOLIO_PROJECT || { site: {}, creator: { bio: [], links: [] }, worlds: [], characters: [], plans: [] };`,
       `window.PORTFOLIO_PROJECT.worlds = ${JSON.stringify(deployProject.worlds, null, 2)};`
     ].join("\n");
     const characterDataSource = [
-      `window.PORTFOLIO_PROJECT = window.PORTFOLIO_PROJECT || { site: {}, creator: { bio: [], links: [] }, worlds: [], characters: [] };`,
+      `window.PORTFOLIO_PROJECT = window.PORTFOLIO_PROJECT || { site: {}, creator: { bio: [], links: [] }, worlds: [], characters: [], plans: [] };`,
       `window.PORTFOLIO_PROJECT.characters = ${JSON.stringify(deployProject.characters, null, 2)};`
     ].join("\n");
     const runtimeSource = `(${netlifyPortfolioRuntime.toString()})();\n`;
@@ -8427,6 +9037,11 @@ function renderCharacters() {
         const metadata = getCharacterImageMetadata(image);
         if (metadata) items.push({ ...metadata, role: "character-image", ownerId: character.id });
       });
+    });
+
+    project.plans.forEach((plan) => {
+      const image = getPlanImageMetadata(plan);
+      if (image) items.push({ ...image, role: "plan-image", ownerId: plan.id });
     });
     return items;
   }
@@ -8497,6 +9112,13 @@ function renderCharacters() {
     } else if (image.role === "character-image") {
       preferredBlob = characterImageBlobs.get(image.id) || null;
       previewUrl = characterImagePreviewUrls.get(image.id) || "";
+    } else if (image.role === "plan-image") {
+      const plan = project.plans.find((item) => item.id === image.ownerId);
+      preferredBlob = planImageBlobs.get(image.ownerId) || null;
+      previewUrl = planImagePreviewUrls.get(image.ownerId) || "";
+      if (plan && typeof plan.image === "string") {
+        legacyUrl = legacyImageUrl(plan.image);
+      }
     }
 
     const blob = await resolveDeployBlob({
@@ -8657,7 +9279,8 @@ function renderCharacters() {
       main: JSON.stringify({
         version: normalizedProject.version,
         site: normalizedProject.site,
-        creator: normalizedProject.creator
+        creator: normalizedProject.creator,
+        plans: normalizedProject.plans
       }),
       worlds: JSON.stringify(normalizedProject.worlds),
       characters: JSON.stringify(normalizedProject.characters)
@@ -8740,6 +9363,7 @@ function renderCharacters() {
 1. 메인.zip
 - index.html, 사이트 CSS·실행 파일
 - 포트폴리오, 제작자 프로필, 소셜 링크
+- PLAN 데이터와 포스터 이미지
 - 프로필 이미지와 배경 이미지
 - 모든 소셜 아이콘과 플랫폼 아이콘
 - 파일 수: ${mainCount}개
@@ -8946,6 +9570,7 @@ ZIP 파일 자체를 저장소에 올리지 말고, 각 ZIP의 압축을 푼 내
       creatorBackgroundRestoreMissing ||
       missingWorldCount > 0 ||
       missingCharacterCount > 0 ||
+      missingPlanCount > 0 ||
       missingMusicCount > 0
     ) {
       const missingImages = [];
@@ -9040,6 +9665,7 @@ ZIP 파일 자체를 저장소에 올리지 말고, 각 ZIP의 압축을 푼 내
     releaseCreatorBackgroundObjectUrl();
     releaseAllWorldImageObjectUrls();
     releaseAllCharacterImageObjectUrls();
+    releaseAllPlanImageObjectUrls();
     releaseAllMusicObjectUrls();
     await replaceCurrentProject(nextProject, true);
     saveProjectToStorage();
@@ -9069,7 +9695,7 @@ ZIP 파일 자체를 저장소에 올리지 말고, 각 ZIP의 압축을 푼 내
 
   async function resetProject() {
     const confirmed = window.confirm(
-      "현재 입력한 제작자 프로필과 세계관, 캐릭터, 자동 저장 데이터와 저장된 PNG·MP3를 모두 초기화할까요?"
+      "현재 입력한 제작자 프로필과 세계관, 캐릭터, 제작 계획, 자동 저장 데이터와 저장된 PNG·MP3를 모두 초기화할까요?"
     );
 
     if (!confirmed) return;
@@ -9079,6 +9705,7 @@ ZIP 파일 자체를 저장소에 올리지 말고, 각 ZIP의 압축을 푼 내
     releaseCreatorBackgroundObjectUrl();
     releaseAllWorldImageObjectUrls();
     releaseAllCharacterImageObjectUrls();
+    releaseAllPlanImageObjectUrls();
     releaseAllMusicObjectUrls();
     avatarRestoreMissing = false;
     creatorBackgroundRestoreMissing = false;
@@ -9419,6 +10046,41 @@ elements.worldPreviewSoundtrack.addEventListener(
   elements.characterPreviewPlatforms.addEventListener("pointerup", stopPlatformRailDrag);
   elements.characterPreviewPlatforms.addEventListener("pointercancel", stopPlatformRailDrag);
 
+
+  elements.addPlanButton.addEventListener("click", addPlan);
+  elements.planEditorList.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-select-plan]");
+    if (!button) return;
+    selectedPlanId = button.dataset.selectPlan;
+    renderPlanEditor();
+  });
+  elements.planForm.addEventListener("input", (event) => {
+    if (event.target === elements.planImageInput) return;
+    const platformInput = event.target.closest("[data-plan-platform]");
+    if (platformInput) {
+      updatePlanPlatform(platformInput);
+      return;
+    }
+    syncPlanFromFields();
+  });
+  elements.planImageInput.addEventListener("change", handlePlanImageSelection);
+  elements.removePlanImageButton.addEventListener("click", removePlanImage);
+  elements.movePlanUpButton.addEventListener("click", () => moveSelectedPlan(-1));
+  elements.movePlanDownButton.addEventListener("click", () => moveSelectedPlan(1));
+  elements.deletePlanButton.addEventListener("click", deleteSelectedPlan);
+  elements.previewPlanGrid.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-preview-plan]");
+    if (!button) return;
+    openPlanPreview(project.plans.find((plan) => plan.id === button.dataset.previewPlan));
+  });
+  elements.planPreviewModalClose.addEventListener("click", closePlanPreview);
+  elements.planPreviewModal.addEventListener("click", (event) => {
+    if (event.target === elements.planPreviewModal) closePlanPreview();
+  });
+  elements.planPreviewModal.addEventListener("close", () => {
+    document.body.classList.remove("plan-preview-modal-open");
+  });
+
   elements.addWorldButton.addEventListener("click", addWorld);
 
   elements.worldEditorSearchInput.addEventListener("input", (event) => {
@@ -9658,6 +10320,7 @@ elements.netlifyGuideDialog.addEventListener(
     releaseCreatorBackgroundObjectUrl();
     releaseAllWorldImageObjectUrls();
     releaseAllCharacterImageObjectUrls();
+    releaseAllPlanImageObjectUrls();
     releaseAllMusicObjectUrls();
   });
 
@@ -9668,10 +10331,12 @@ elements.netlifyGuideDialog.addEventListener(
     renderServiceOptions();
     selectedWorldId = project.worlds[0]?.id || "";
     selectedCharacterId = project.characters[0]?.id || "";
+    selectedPlanId = project.plans[0]?.id || "";
     populateFieldsFromProject();
     renderSocialLinks();
     renderWorldEditor();
     renderCharacterEditor();
+    renderPlanEditor();
     renderPreview();
 
     const avatarMetadata = getAvatarMetadata();
@@ -9684,6 +10349,7 @@ elements.netlifyGuideDialog.addEventListener(
       : false;
     const missingWorldCount = await restoreWorldImagesFromDatabase();
     const missingCharacterCount = await restoreCharacterImagesFromDatabase();
+    const missingPlanCount = await restorePlanImagesFromDatabase();
     const missingMusicCount = await restoreMusicFromDatabase();
 
     if (autosaveRestoreError) {
@@ -9699,6 +10365,7 @@ elements.netlifyGuideDialog.addEventListener(
       (creatorBackgroundMetadata && !restoredCreatorBackground) ||
       missingWorldCount > 0 ||
       missingCharacterCount > 0 ||
+      missingPlanCount > 0 ||
       missingMusicCount > 0
     ) {
       const messages = [];
@@ -9708,6 +10375,7 @@ elements.netlifyGuideDialog.addEventListener(
       }
       if (missingWorldCount > 0) messages.push(`세계관 PNG ${missingWorldCount}개`);
       if (missingCharacterCount > 0) messages.push(`캐릭터 이미지 ${missingCharacterCount}개`);
+      if (missingPlanCount > 0) messages.push(`PLAN 이미지 ${missingPlanCount}개`);
       if (missingMusicCount > 0) messages.push(`MP3 ${missingMusicCount}개`);
       setSaveStatus(
         `${restoredAutosave ? "이전 자동 저장 복구됨 · " : ""}${messages.join(" · ")}를 다시 선택해 주세요`
