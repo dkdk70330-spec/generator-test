@@ -6339,3 +6339,108 @@ textarea {
     left: .35rem;
   }
 }
+
+/* -------------------------------------------------
+   Mobile profile + archive navigation alignment fix
+   ------------------------------------------------- */
+/* Global `label + label` spacing must not leak into the top navigation. */
+.archive-site-nav > label,
+.archive-site-nav > label + label {
+  box-sizing: border-box;
+  height: 100%;
+  min-height: 0;
+  margin: 0;
+  align-self: stretch;
+  line-height: 1;
+}
+
+/* Keep every tab on one identical vertical track. */
+.archive-site-nav {
+  height: 58px;
+  min-height: 58px;
+  align-items: stretch;
+}
+
+.archive-site-nav > label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Do not let the profile image stretch to the height of the text column. */
+.archive-profile-panel .preview-avatar {
+  flex: 0 0 auto;
+  align-self: start;
+  aspect-ratio: 1 / 1;
+  height: auto;
+}
+
+@container live-preview (max-width: 720px) {
+  .archive-site-nav {
+    height: 48px;
+    min-height: 48px;
+  }
+
+  .archive-site-nav > label {
+    height: 48px;
+    min-height: 48px;
+  }
+
+  .archive-profile-panel .preview-profile {
+    display: grid;
+    grid-template-columns: 82px minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .archive-profile-panel .preview-avatar {
+    width: 82px;
+    min-width: 82px;
+    height: 82px;
+  }
+}
+
+@container live-preview (max-width: 520px) {
+  /* Override the older flex fallback that made the avatar stretch or collapse. */
+  .archive-profile-panel .preview-profile {
+    display: grid;
+    grid-template-columns: 70px minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .archive-profile-panel .preview-avatar {
+    width: 70px;
+    min-width: 70px;
+    height: 70px;
+  }
+}
+
+@container live-preview (max-width: 400px) {
+  .archive-profile-panel .preview-profile {
+    grid-template-columns: 62px minmax(0, 1fr);
+  }
+
+  .archive-profile-panel .preview-avatar {
+    width: 62px;
+    min-width: 62px;
+    height: 62px;
+  }
+}
+
+@media (max-width: 700px) {
+  .archive-site-nav {
+    height: 48px;
+    min-height: 48px;
+  }
+
+  .archive-site-nav > label,
+  .archive-site-nav > label + label {
+    height: 48px;
+    min-height: 48px;
+    margin: 0;
+  }
+
+  .archive-profile-panel .preview-avatar {
+    align-self: start;
+    aspect-ratio: 1 / 1;
+  }
+}
