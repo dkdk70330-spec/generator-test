@@ -4872,3 +4872,628 @@ body.character-filter-picker-open { overflow: hidden; }
     box-shadow: none;
   }
 }
+
+/* =========================================================
+   Horizontal archive prototype
+   기능과 데이터 구조는 유지하고 공개 미리보기의 배치만 변경합니다.
+   ========================================================= */
+
+:root {
+  --preview-panel-width: 1100px;
+}
+
+.app-header,
+.generator-layout {
+  width: min(calc(100% - 40px), 1880px);
+}
+
+.generator-layout {
+  grid-template-columns: minmax(520px, .78fr) minmax(760px, 1.22fr);
+  gap: 1.25rem;
+}
+
+.preview-panel {
+  width: min(calc(100vw - 40px), calc(var(--preview-panel-width) + 2.8rem));
+}
+
+.preview-canvas {
+  min-width: 760px;
+}
+
+.archive-tab-state {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.archive-site-shell {
+  min-height: 650px;
+  overflow: hidden;
+  border: 1px solid var(--line-strong);
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at 84% 8%, color-mix(in srgb, var(--theme) 13%, transparent), transparent 24rem),
+    var(--bg);
+  box-shadow: var(--shadow);
+}
+
+.archive-site-header {
+  position: sticky;
+  z-index: 20;
+  top: 0;
+  display: flex;
+  min-height: 58px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 0 1.25rem;
+  border-bottom: 1px solid var(--line-strong);
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(18px);
+}
+
+.archive-site-brand,
+.archive-site-nav label {
+  cursor: pointer;
+  user-select: none;
+}
+
+.archive-site-brand {
+  display: inline-flex;
+  min-width: 0;
+  align-items: center;
+  gap: .55rem;
+}
+
+.archive-site-brand-mark {
+  color: var(--accent);
+  font-size: .68rem;
+}
+
+.archive-site-brand strong {
+  overflow: hidden;
+  font-size: .8rem;
+  letter-spacing: .02em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.archive-site-nav {
+  display: flex;
+  align-items: center;
+  gap: 1.35rem;
+}
+
+.archive-site-nav label {
+  position: relative;
+  padding: 1.15rem 0 1rem;
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: .68rem;
+  font-weight: 900;
+  letter-spacing: .08em;
+}
+
+.archive-site-nav label::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: .72rem;
+  left: 0;
+  height: 2px;
+  background: var(--accent);
+  opacity: 0;
+  transform: scaleX(.35);
+  transition: opacity .18s ease, transform .18s ease;
+}
+
+.archive-site-nav label:hover {
+  color: var(--text);
+}
+
+#archiveTabWorld:checked ~ .archive-site-shell .archive-site-nav label[for="archiveTabWorld"],
+#archiveTabCharacter:checked ~ .archive-site-shell .archive-site-nav label[for="archiveTabCharacter"],
+#archiveTabPlan:checked ~ .archive-site-shell .archive-site-nav label[for="archiveTabPlan"] {
+  color: var(--text);
+}
+
+#archiveTabWorld:checked ~ .archive-site-shell .archive-site-nav label[for="archiveTabWorld"]::after,
+#archiveTabCharacter:checked ~ .archive-site-shell .archive-site-nav label[for="archiveTabCharacter"]::after,
+#archiveTabPlan:checked ~ .archive-site-shell .archive-site-nav label[for="archiveTabPlan"]::after {
+  opacity: 1;
+  transform: scaleX(1);
+}
+
+.archive-pages {
+  display: grid;
+  min-width: 0;
+  gap: .9rem;
+  padding: .9rem;
+}
+
+.archive-pages > .portfolio-preview,
+.archive-pages > .character-featured-preview,
+.archive-pages > .stardust-world-preview,
+.archive-pages > .character-archive-preview,
+.archive-pages > .archive-plan-preview {
+  display: none;
+  min-width: 0;
+  margin: 0;
+}
+
+/* HOME: 제작자 + 추천 캐릭터 + 첫 3개 세계관 */
+#archiveTabHome:checked ~ .archive-site-shell .archive-pages {
+  grid-template-columns: minmax(220px, 28%) minmax(0, 1fr);
+  grid-template-areas:
+    "profile featured"
+    "profile worlds";
+  align-items: stretch;
+}
+
+#archiveTabHome:checked ~ .archive-site-shell .archive-profile-panel {
+  display: block;
+  grid-area: profile;
+}
+
+#archiveTabHome:checked ~ .archive-site-shell .character-featured-preview {
+  display: block;
+  grid-area: featured;
+}
+
+#archiveTabHome:checked ~ .archive-site-shell .stardust-world-preview {
+  display: block;
+  grid-area: worlds;
+}
+
+#archiveTabHome:checked ~ .archive-site-shell #previewWorldGrid > .world-card:nth-child(n + 4) {
+  display: none !important;
+}
+
+#archiveTabHome:checked ~ .archive-site-shell #previewWorldToggleWrap {
+  display: none !important;
+}
+
+#archiveTabHome:checked ~ .archive-site-shell .archive-page-world-kicker,
+#archiveTabHome:checked ~ .archive-site-shell .archive-page-world-title {
+  display: none;
+}
+
+/* WORLD */
+#archiveTabWorld:checked ~ .archive-site-shell .archive-pages,
+#archiveTabCharacter:checked ~ .archive-site-shell .archive-pages,
+#archiveTabPlan:checked ~ .archive-site-shell .archive-pages {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+#archiveTabWorld:checked ~ .archive-site-shell .stardust-world-preview,
+#archiveTabCharacter:checked ~ .archive-site-shell .character-archive-preview,
+#archiveTabPlan:checked ~ .archive-site-shell .archive-plan-preview {
+  display: block;
+}
+
+#archiveTabWorld:checked ~ .archive-site-shell .archive-home-world-kicker,
+#archiveTabWorld:checked ~ .archive-site-shell .archive-home-world-title {
+  display: none;
+}
+
+/* HOME profile */
+.archive-profile-panel {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+}
+
+.archive-profile-panel .preview-profile {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: stretch;
+  padding: 1.15rem;
+}
+
+.archive-profile-panel .preview-profile::after {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--bg) 34%, transparent), var(--bg) 82%);
+}
+
+.archive-profile-panel .preview-avatar {
+  width: min(108px, 48%);
+  border-radius: 14px;
+}
+
+.archive-profile-panel .preview-profile-copy {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+}
+
+.archive-profile-panel .preview-manifesto {
+  margin: 0 0 .3rem;
+  font-size: .62rem;
+  letter-spacing: .06em;
+}
+
+.archive-profile-panel .preview-profile h3 {
+  font-size: clamp(1.35rem, 3.4cqw, 2.3rem);
+  line-height: 1.05;
+}
+
+.archive-profile-panel .preview-handle {
+  margin: .3rem 0 .75rem;
+  font-size: .7rem;
+}
+
+.archive-profile-panel .preview-bio {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: .72rem;
+  line-height: 1.65;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 7;
+}
+
+.archive-profile-panel .preview-social-links {
+  margin-top: 1rem;
+}
+
+.archive-profile-panel .preview-social-link {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+}
+
+.archive-profile-panel .hero-stats {
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+
+/* HOME panels */
+.archive-pages .character-featured-preview,
+.archive-pages .stardust-world-preview,
+.archive-pages .character-archive-preview,
+.archive-plan-preview {
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+}
+
+.archive-pages .character-preview-heading,
+.archive-pages .world-preview-section-heading {
+  margin-bottom: .75rem;
+}
+
+.archive-pages .character-preview-heading h2,
+.archive-pages .world-preview-section-heading h2,
+.archive-page-heading h2 {
+  margin: 0;
+  font-size: clamp(1.25rem, 3.2cqw, 2rem);
+  letter-spacing: -.055em;
+}
+
+.archive-pages .eyebrow {
+  margin-bottom: .15rem;
+  font-size: .54rem;
+}
+
+/* 썸네일은 이미지 + 제목 + 한 줄 소개만 */
+.archive-pages .character-preview-card-genres,
+.archive-pages .character-preview-card-platforms,
+.archive-pages .character-preview-card-more,
+.archive-pages .world-card-meta,
+.archive-pages .world-card-tags,
+.archive-pages .world-face-stack,
+.archive-pages .archive-music-mark {
+  display: none !important;
+}
+
+.archive-pages .character-featured-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .65rem;
+}
+
+.archive-pages .character-preview-card.is-featured .character-preview-card-button {
+  display: block;
+  min-height: 0;
+}
+
+.archive-pages .character-preview-card.is-featured .character-preview-card-image-wrap {
+  height: auto;
+  min-height: 0;
+  aspect-ratio: 4 / 4.55;
+}
+
+.archive-pages .character-preview-card.is-featured .character-preview-card-body {
+  display: block;
+}
+
+.archive-pages .character-preview-card-button,
+.archive-pages .world-card-button {
+  border-radius: 13px;
+  background: color-mix(in srgb, var(--surface-2) 82%, transparent);
+  transition: transform .2s ease, border-color .2s ease, background .2s ease;
+}
+
+.archive-pages .character-preview-card-button:hover,
+.archive-pages .world-card-button:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--accent) 60%, var(--line));
+  background: var(--surface-2);
+}
+
+.archive-pages .character-preview-card-image-wrap {
+  aspect-ratio: 4 / 5;
+}
+
+.archive-pages .character-preview-card-body,
+.archive-pages .world-card-body {
+  padding: .58rem .62rem .65rem;
+}
+
+.archive-pages .character-preview-card-body h3,
+.archive-pages .world-card-body h3 {
+  margin: 0;
+  overflow: hidden;
+  font-size: .78rem;
+  letter-spacing: -.025em;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.archive-pages .character-preview-card-body p,
+.archive-pages .world-card-body > p {
+  display: block;
+  min-height: 0;
+  margin: .15rem 0 0;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: .62rem;
+  line-height: 1.45;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.archive-pages .world-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .65rem;
+}
+
+.archive-pages .world-card-image {
+  aspect-ratio: 16 / 8.2;
+}
+
+/* WORLD page */
+#archiveTabWorld:checked ~ .archive-site-shell .stardust-world-preview {
+  min-height: 570px;
+  padding: clamp(1rem, 2.2vw, 1.7rem);
+}
+
+#archiveTabWorld:checked ~ .archive-site-shell .world-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: .8rem;
+}
+
+#archiveTabWorld:checked ~ .archive-site-shell .world-card-image {
+  aspect-ratio: 16 / 9;
+}
+
+#archiveTabWorld:checked ~ .archive-site-shell .world-card-body h3 {
+  font-size: .9rem;
+}
+
+#archiveTabWorld:checked ~ .archive-site-shell .world-card-body > p {
+  font-size: .67rem;
+}
+
+/* CHARACTER page */
+#archiveTabCharacter:checked ~ .archive-site-shell .character-archive-preview {
+  min-height: 570px;
+  padding: clamp(1rem, 2.2vw, 1.7rem);
+}
+
+#archiveTabCharacter:checked ~ .archive-site-shell .character-preview-grid {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: .72rem;
+}
+
+#archiveTabCharacter:checked ~ .archive-site-shell .controls {
+  padding: .8rem;
+  margin-bottom: 1rem;
+  border-radius: 13px;
+}
+
+#archiveTabCharacter:checked ~ .archive-site-shell .search-box {
+  padding: .65rem .8rem;
+}
+
+#archiveTabCharacter:checked ~ .archive-site-shell .filter-row {
+  gap: .65rem;
+  margin-top: .7rem;
+}
+
+#archiveTabCharacter:checked ~ .archive-site-shell .filter-chip,
+#archiveTabCharacter:checked ~ .archive-site-shell .filter-more {
+  min-height: 32px;
+  padding: .32rem .56rem;
+  font-size: .68rem;
+}
+
+/* PLAN is intentionally visual-only in this prototype. */
+.archive-plan-preview {
+  min-height: 570px;
+}
+
+.archive-plan-placeholder {
+  display: grid;
+  min-height: 430px;
+  place-content: center;
+  padding: 2rem;
+  border: 1px dashed var(--line-strong);
+  border-radius: 14px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.archive-plan-placeholder > span {
+  color: var(--accent);
+  font-size: 2rem;
+}
+
+.archive-plan-placeholder strong {
+  margin-top: .65rem;
+  color: var(--text);
+}
+
+.archive-plan-placeholder p {
+  max-width: 28rem;
+  margin: .25rem auto 0;
+  font-size: .76rem;
+}
+
+/* 배포 결과는 브라우저 폭을 넉넉하게 사용합니다. */
+.exported-portfolio-site {
+  min-width: 320px;
+}
+
+.exported-site-shell {
+  width: min(calc(100% - 28px), 1440px);
+  margin: 14px auto;
+}
+
+.exported-preview-canvas {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+}
+
+.exported-preview-canvas .archive-site-shell {
+  min-height: calc(100dvh - 28px);
+}
+
+@media (max-width: 1500px) {
+  .generator-layout {
+    grid-template-columns: minmax(500px, .88fr) minmax(700px, 1.12fr);
+  }
+}
+
+@media (max-width: 1180px) {
+  .generator-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .preview-panel {
+    position: static;
+    width: 100%;
+    justify-self: stretch;
+  }
+}
+
+@container live-preview (max-width: 900px) {
+  #archiveTabHome:checked ~ .archive-site-shell .archive-pages {
+    grid-template-columns: minmax(190px, 30%) minmax(0, 1fr);
+  }
+
+  #archiveTabWorld:checked ~ .archive-site-shell .world-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  #archiveTabCharacter:checked ~ .archive-site-shell .character-preview-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@container live-preview (max-width: 720px) {
+  .archive-site-header {
+    gap: .75rem;
+    padding-inline: .9rem;
+  }
+
+  .archive-site-nav {
+    gap: .8rem;
+  }
+
+  #archiveTabHome:checked ~ .archive-site-shell .archive-pages {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "profile"
+      "featured"
+      "worlds";
+  }
+
+  .archive-profile-panel .preview-profile {
+    display: grid;
+    grid-template-columns: 82px minmax(0, 1fr);
+    min-height: 0;
+  }
+
+  .archive-profile-panel .preview-avatar {
+    width: 82px;
+  }
+
+  .archive-profile-panel .hero-stats {
+    margin-top: .8rem;
+  }
+
+  #archiveTabWorld:checked ~ .archive-site-shell .world-grid,
+  #archiveTabCharacter:checked ~ .archive-site-shell .character-preview-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@container live-preview (max-width: 520px) {
+  .archive-site-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0;
+    padding-top: .75rem;
+  }
+
+  .archive-site-nav {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .archive-site-nav label {
+    padding-top: .75rem;
+  }
+
+  .archive-pages {
+    padding: .6rem;
+  }
+
+  .archive-profile-panel .preview-profile {
+    display: flex;
+  }
+
+  .archive-pages .character-featured-grid,
+  .archive-pages .world-grid,
+  #archiveTabWorld:checked ~ .archive-site-shell .world-grid,
+  #archiveTabCharacter:checked ~ .archive-site-shell .character-preview-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  #archiveTabHome:checked ~ .archive-site-shell #previewWorldGrid > .world-card:nth-child(n + 3) {
+    display: none !important;
+  }
+}
+
+/* 탭 전환 뒤에는 전체 아카이브를 즉시 펼쳐 보입니다.
+   기존 더보기 로직과 데이터는 그대로 남아 있습니다. */
+#archiveTabWorld:checked ~ .archive-site-shell #previewWorldGrid > .world-card[hidden],
+#archiveTabCharacter:checked ~ .archive-site-shell #previewCharacterGrid > .character-preview-card[hidden] {
+  display: block !important;
+}
+
+#archiveTabWorld:checked ~ .archive-site-shell #previewWorldToggleWrap,
+#archiveTabCharacter:checked ~ .archive-site-shell #previewCharacterToggleWrap {
+  display: none !important;
+}

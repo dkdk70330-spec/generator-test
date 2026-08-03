@@ -38,9 +38,9 @@
   const STORAGE_KEY = `portfolio-generator:project:v${CURRENT_PROJECT_VERSION}`;
   const AUTOSAVE_DELAY = 450;
   const PREVIEW_WIDTH_STORAGE_KEY = "portfolio-generator:preview-width";
-  const PREVIEW_WIDTH_MIN = 380;
-  const PREVIEW_WIDTH_MAX = 760;
-  const PREVIEW_WIDTH_DEFAULT = 620;
+  const PREVIEW_WIDTH_MIN = 760;
+  const PREVIEW_WIDTH_MAX = 1280;
+  const PREVIEW_WIDTH_DEFAULT = 1100;
   const DEFAULT_TEXT_COLOR = "#f4f1ea";
   const DEFAULT_THEME_COLOR = "#a897ff";
   const FULL_BACKUP_FORMAT = "portfolio-generator-full-backup";

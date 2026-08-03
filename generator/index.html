@@ -721,136 +721,169 @@
         </div>
         <label class="preview-width-control" for="previewWidthInput">
           <span>미리보기 폭</span>
-          <input id="previewWidthInput" type="range" min="380" max="760" step="10" value="620">
-          <output id="previewWidthOutput" for="previewWidthInput">620px</output>
+          <input id="previewWidthInput" type="range" min="760" max="1280" step="20" value="1100">
+          <output id="previewWidthOutput" for="previewWidthInput">1100px</output>
         </label>
         <span id="saveStatus" class="save-status" role="status" aria-live="polite">자동 저장 준비 중</span>
       </div>
 
       <div class="preview-viewport" id="previewViewport">
         <div class="preview-canvas" id="previewCanvas">
-      <article class="portfolio-preview">
-        <header class="preview-brand">
-          <span class="preview-brand-mark" aria-hidden="true">✦</span>
-          <strong id="previewSiteTitle">사이트 제목</strong>
-        </header>
+          <input class="archive-tab-state" type="radio" name="archivePreviewTab" id="archiveTabHome" checked>
+          <input class="archive-tab-state" type="radio" name="archivePreviewTab" id="archiveTabWorld">
+          <input class="archive-tab-state" type="radio" name="archivePreviewTab" id="archiveTabCharacter">
+          <input class="archive-tab-state" type="radio" name="archivePreviewTab" id="archiveTabPlan">
 
-        <div class="preview-profile">
-          <div class="preview-profile-background" aria-hidden="true">
-            <img id="previewProfileBackgroundImage" alt="" hidden>
-          </div>
+          <div class="archive-site-shell">
+            <header class="archive-site-header">
+              <label class="archive-site-brand" for="archiveTabHome" title="메인으로 이동">
+                <span class="archive-site-brand-mark" aria-hidden="true">●</span>
+                <strong id="previewSiteTitle">사이트 제목</strong>
+              </label>
 
-          <div class="preview-avatar" aria-hidden="true">
-            <img id="previewAvatarImage" alt="" hidden>
-            <span id="previewAvatarFallback">✦</span>
-          </div>
+              <nav class="archive-site-nav" aria-label="아카이브 메뉴">
+                <label for="archiveTabWorld">WORLD</label>
+                <label for="archiveTabCharacter">CHARACTER</label>
+                <label for="archiveTabPlan">PLAN</label>
+              </nav>
+            </header>
 
-          <div class="preview-profile-copy">
-            <p id="previewSiteDescription" class="preview-manifesto"></p>
-            <h3 id="previewCreatorName">제작자 이름</h3>
-            <p id="previewCreatorHandle" class="preview-handle"></p>
-            <div id="previewCreatorBio" class="preview-bio"></div>
-            <div id="previewCreatorLinks" class="preview-social-links"></div>
-            <div class="hero-stats" aria-label="아카이브 요약">
-              <div><strong id="previewCharacterCount">0</strong><span>캐릭터</span></div>
-              <div><strong id="previewWorldCount">0</strong><span>세계관</span></div>
-              <div><strong id="previewGenreCount">0</strong><span>장르</span></div>
+            <div class="archive-pages">
+              <article class="portfolio-preview archive-profile-panel">
+                <div class="preview-profile">
+                  <div class="preview-profile-background" aria-hidden="true">
+                    <img id="previewProfileBackgroundImage" alt="" hidden>
+                  </div>
+
+                  <div class="preview-avatar" aria-hidden="true">
+                    <img id="previewAvatarImage" alt="" hidden>
+                    <span id="previewAvatarFallback">✦</span>
+                  </div>
+
+                  <div class="preview-profile-copy">
+                    <p id="previewSiteDescription" class="preview-manifesto"></p>
+                    <h3 id="previewCreatorName">제작자 이름</h3>
+                    <p id="previewCreatorHandle" class="preview-handle"></p>
+                    <div id="previewCreatorBio" class="preview-bio"></div>
+                    <div id="previewCreatorLinks" class="preview-social-links"></div>
+                    <div class="hero-stats" aria-label="아카이브 요약">
+                      <div><strong id="previewCharacterCount">0</strong><span>캐릭터</span></div>
+                      <div><strong id="previewWorldCount">0</strong><span>세계관</span></div>
+                      <div><strong id="previewGenreCount">0</strong><span>장르</span></div>
+                    </div>
+                  </div>
+                </div>
+              </article>
+
+              <section class="stardust-character-preview character-featured-preview" id="previewFeaturedSection" aria-labelledby="previewFeaturedTitle" hidden>
+                <div class="character-preview-heading">
+                  <div>
+                    <p class="eyebrow">FEATURED CHARACTERS</p>
+                    <h2 id="previewFeaturedTitle">추천 캐릭터</h2>
+                  </div>
+                </div>
+                <div class="character-featured-grid" id="previewFeaturedGrid"></div>
+              </section>
+
+              <section class="stardust-world-preview" id="previewWorldSection" aria-labelledby="previewWorldTitle" hidden>
+                <div class="world-preview-section-heading">
+                  <div>
+                    <p class="eyebrow archive-home-world-kicker">FEATURED WORLDS</p>
+                    <p class="eyebrow archive-page-world-kicker">WORLD ARCHIVE</p>
+                    <h2 id="previewWorldTitle">
+                      <span class="archive-home-world-title">추천 세계관</span>
+                      <span class="archive-page-world-title">세계관 아카이브</span>
+                    </h2>
+                  </div>
+                </div>
+
+                <div class="world-grid" id="previewWorldGrid"></div>
+                <div class="archive-toggle-wrap" id="previewWorldToggleWrap" hidden>
+                  <button
+                    class="archive-toggle"
+                    id="previewWorldToggle"
+                    type="button"
+                    aria-controls="previewWorldGrid"
+                    aria-expanded="false"
+                  >
+                    <span>세계관 더보기</span>
+                    <b aria-hidden="true">↓</b>
+                  </button>
+                </div>
+                <p id="previewWorldEmpty" class="world-preview-empty">
+                  아직 등록된 세계관이 없습니다.
+                </p>
+              </section>
+
+              <section class="stardust-character-preview character-archive-preview" id="previewCharacterSection" aria-labelledby="previewCharacterTitle" hidden>
+                <div class="character-preview-heading character-archive-heading">
+                  <div>
+                    <p class="eyebrow">CHARACTER ARCHIVE</p>
+                    <h2 id="previewCharacterTitle">캐릭터 아카이브</h2>
+                  </div>
+                  <p id="previewCharacterResultSummary" aria-live="polite">총 0명 중 0명 표시</p>
+                </div>
+
+                <div class="controls" aria-label="캐릭터 검색 및 필터">
+                  <label class="search-box">
+                    <span class="sr-only">캐릭터 검색</span>
+                    <span aria-hidden="true">⌕</span>
+                    <input
+                      id="previewCharacterSearchInput"
+                      type="search"
+                      placeholder="이름, 소개, 태그, 세계관으로 검색"
+                      autocomplete="off"
+                    >
+                  </label>
+
+                  <div class="filter-row">
+                    <div class="filter-group" aria-labelledby="previewGenreFilterLabel">
+                      <span class="filter-label" id="previewGenreFilterLabel">장르</span>
+                      <div class="chip-list" id="previewGenreFilters"></div>
+                    </div>
+                    <div class="filter-group" aria-labelledby="previewTagFilterLabel">
+                      <span class="filter-label" id="previewTagFilterLabel">태그</span>
+                      <div class="chip-list" id="previewTagFilters"></div>
+                    </div>
+                    <div class="filter-group" aria-labelledby="previewPlatformFilterLabel">
+                      <span class="filter-label" id="previewPlatformFilterLabel">플랫폼</span>
+                      <div class="chip-list" id="previewPlatformFilters"></div>
+                    </div>
+                    <div class="filter-group filter-group--world" aria-labelledby="previewWorldFilterLabel">
+                      <span class="filter-label" id="previewWorldFilterLabel">세계관</span>
+                      <div class="chip-list" id="previewWorldFilters"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="character-preview-grid" id="previewCharacterGrid"></div>
+                <div class="character-archive-toggle-wrap" id="previewCharacterToggleWrap" hidden>
+                  <button class="character-archive-toggle" id="previewCharacterToggle" type="button" aria-controls="previewCharacterGrid" aria-expanded="false">
+                    <span>캐릭터 더보기</span>
+                    <b aria-hidden="true">↓</b>
+                  </button>
+                </div>
+                <div class="empty-state" id="previewCharacterEmpty" hidden>
+                  <span>◇</span>
+                  <h3>조건에 맞는 캐릭터가 없어요.</h3>
+                  <p>검색어나 필터를 조금 느슨하게 풀어보세요.</p>
+                  <button class="primary-button" id="previewCharacterResetFilters" type="button">필터 초기화</button>
+                </div>
+              </section>
+
+              <section class="archive-plan-preview" aria-labelledby="archivePlanTitle">
+                <div class="archive-page-heading">
+                  <p class="eyebrow">PLAN</p>
+                  <h2 id="archivePlanTitle">제작 계획</h2>
+                </div>
+                <div class="archive-plan-placeholder">
+                  <span aria-hidden="true">＋</span>
+                  <strong>COMING SOON</strong>
+                  <p>제작 예정 콘텐츠가 이곳에 표시됩니다.</p>
+                </div>
+              </section>
             </div>
           </div>
-        </div>
-      </article>
-
-      <section class="stardust-character-preview character-featured-preview" id="previewFeaturedSection" aria-labelledby="previewFeaturedTitle" hidden>
-        <div class="character-preview-heading">
-          <div>
-            <p class="eyebrow">FEATURED CHARACTERS</p>
-            <h2 id="previewFeaturedTitle">추천 캐릭터</h2>
-          </div>
-        </div>
-        <div class="character-featured-grid" id="previewFeaturedGrid"></div>
-      </section>
-
-      <section class="stardust-world-preview" id="previewWorldSection" aria-labelledby="previewWorldTitle" hidden>
-        <div class="world-preview-section-heading">
-          <div>
-            <p class="eyebrow">SHARED WORLDS</p>
-            <h2 id="previewWorldTitle">세계관 아카이브</h2>
-          </div>
-        </div>
-
-        <div class="world-grid" id="previewWorldGrid"></div>
-        <div class="archive-toggle-wrap" id="previewWorldToggleWrap" hidden>
-          <button
-            class="archive-toggle"
-            id="previewWorldToggle"
-            type="button"
-            aria-controls="previewWorldGrid"
-            aria-expanded="false"
-          >
-            <span>세계관 더보기</span>
-            <b aria-hidden="true">↓</b>
-          </button>
-        </div>
-        <p id="previewWorldEmpty" class="world-preview-empty">
-          아직 등록된 세계관이 없습니다.
-        </p>
-      </section>
-
-      <section class="stardust-character-preview character-archive-preview" id="previewCharacterSection" aria-labelledby="previewCharacterTitle" hidden>
-        <div class="character-preview-heading character-archive-heading">
-          <div>
-            <p class="eyebrow">FULL ARCHIVE</p>
-            <h2 id="previewCharacterTitle">캐릭터 아카이브</h2>
-          </div>
-          <p id="previewCharacterResultSummary" aria-live="polite">총 0명 중 0명 표시</p>
-        </div>
-
-        <div class="controls" aria-label="캐릭터 검색 및 필터">
-          <label class="search-box">
-            <span class="sr-only">캐릭터 검색</span>
-            <span aria-hidden="true">⌕</span>
-            <input
-              id="previewCharacterSearchInput"
-              type="search"
-              placeholder="이름, 소개, 태그, 세계관으로 검색"
-              autocomplete="off"
-            >
-          </label>
-
-          <div class="filter-row">
-            <div class="filter-group" aria-labelledby="previewGenreFilterLabel">
-              <span class="filter-label" id="previewGenreFilterLabel">장르</span>
-              <div class="chip-list" id="previewGenreFilters"></div>
-            </div>
-            <div class="filter-group" aria-labelledby="previewTagFilterLabel">
-              <span class="filter-label" id="previewTagFilterLabel">태그</span>
-              <div class="chip-list" id="previewTagFilters"></div>
-            </div>
-            <div class="filter-group" aria-labelledby="previewPlatformFilterLabel">
-              <span class="filter-label" id="previewPlatformFilterLabel">플랫폼</span>
-              <div class="chip-list" id="previewPlatformFilters"></div>
-            </div>
-            <div class="filter-group filter-group--world" aria-labelledby="previewWorldFilterLabel">
-              <span class="filter-label" id="previewWorldFilterLabel">세계관</span>
-              <div class="chip-list" id="previewWorldFilters"></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="character-preview-grid" id="previewCharacterGrid"></div>
-        <div class="character-archive-toggle-wrap" id="previewCharacterToggleWrap" hidden>
-          <button class="character-archive-toggle" id="previewCharacterToggle" type="button" aria-controls="previewCharacterGrid" aria-expanded="false">
-            <span>캐릭터 더보기</span>
-            <b aria-hidden="true">↓</b>
-          </button>
-        </div>
-        <div class="empty-state" id="previewCharacterEmpty" hidden>
-          <span>◇</span>
-          <h3>조건에 맞는 캐릭터가 없어요.</h3>
-          <p>검색어나 필터를 조금 느슨하게 풀어보세요.</p>
-          <button class="primary-button" id="previewCharacterResetFilters" type="button">필터 초기화</button>
-        </div>
-      </section>
         </div>
       </div>
     </section>
