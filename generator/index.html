@@ -1,0 +1,1133 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>푸딩냥아카이브생성기</title>
+  <link rel="stylesheet" href="./generator.css">
+</head>
+<body>
+  <header class="app-header">
+    <div>
+      <p class="eyebrow">PuddingCat Archive Generator</p>
+      <h1>AI채팅 제작자 아카이브</h1>
+      <p>캐릭터와 링크 정보를 입력하면 오른쪽 미리보기에 즉시 반영됩니다.</p>
+    </div>
+
+	<div class="header-actions" aria-label="프로젝트 관리">
+  		<button
+			id="netlifyGuideButton"
+			class="secondary-button guide-help-button"
+			type="button"
+			aria-haspopup="dialog"
+			aria-controls="netlifyGuideDialog"
+			aria-label="Netlify 업로드 안내 열기"
+			title="가이드"
+		>
+			?
+		</button>
+
+  <details class="backup-menu" id="backupMenu">
+        <summary class="secondary-button">다운로드</summary>
+        <div class="backup-menu-panel" aria-label="다운로드 형식 선택">
+          <button id="downloadEditorBackupButton" type="button">
+            <strong>백업용 ZIP</strong>
+            <small>생성기에서 다시 불러올 수 있는 전체 백업</small>
+          </button>
+          <button id="downloadNetlifyDeployButton" type="button">
+            <strong>Netlify 배포용 ZIP</strong>
+            <small>Netlify Drop에 바로 업로드하는 전체 사이트</small>
+          </button>
+          <button id="downloadGithubDeployButton" type="button">
+            <strong>GitHub 배포용 ZIP</strong>
+            <small>파일 90개 이하일 때 전체 사이트를 한 번에 저장</small>
+          </button>
+          <button id="downloadGithubSplitDeployButton" type="button">
+            <strong>GitHub 분할 배포용 ZIP</strong>
+            <small>메인·세계관·캐릭터 ZIP으로 나눠 저장하고 부분 갱신</small>
+          </button>
+        </div>
+      </details>
+
+      <label class="secondary-button import-project-button" for="importProjectInput">
+        불러오기
+      </label>
+      <input
+        id="importProjectInput"
+        class="file-input"
+        type="file"
+        accept=".json,.zip,application/json,application/zip"
+      >
+
+      <button id="resetProjectButton" class="secondary-button" type="button">
+        입력 초기화
+      </button>
+    </div>
+  </header>
+
+  <main class="generator-layout">
+    <section class="editor-panel" aria-labelledby="editorTitle">
+      <h2 id="editorTitle">편집</h2>
+
+      <form id="profileForm" novalidate>
+        <details class="major-editor-fold" id="portfolioEditorFold" open>
+
+          <summary class="major-editor-fold-summary">
+
+            <span><strong>포트폴리오</strong><small>사이트 제목과 테마 색상을 설정합니다.</small></span>
+
+            <b aria-hidden="true">⌄</b>
+
+          </summary>
+
+          <div class="major-editor-fold-body">
+
+            <fieldset>
+
+          <div class="portfolio-fields-grid">
+            <label>
+              <span>제목</span>
+              <input
+                id="siteTitleInput"
+                type="text"
+                maxlength="60"
+                placeholder="예: 콘의 비밀보따리"
+              >
+            </label>
+
+            <label>
+              <span>제작자 짧은 한줄 소개 (이름 위에 작게)</span>
+              <textarea
+                id="siteDescriptionInput"
+                rows="1"
+                maxlength="180"
+                placeholder="대물을 가진 제작자"
+              ></textarea>
+            </label>
+
+            <div class="site-color-controls" aria-label="사이트 색상">
+              <label class="site-color-control">
+                <span>글자색</span>
+                <span class="site-color-input-row">
+                  <input id="siteTextColorInput" type="color" value="#f4f1ea">
+                  <output id="siteTextColorValue" for="siteTextColorInput">#f4f1ea</output>
+                </span>
+              </label>
+              <label class="site-color-control">
+                <span>전체 테마 색</span>
+                <span class="site-color-input-row">
+                  <input id="siteThemeColorInput" type="color" value="#a897ff">
+                  <output id="siteThemeColorValue" for="siteThemeColorInput">#a897ff</output>
+                </span>
+              </label>
+            </div>
+          </div>
+        
+
+            </fieldset>
+
+          </div>
+
+        </details>
+
+        <details class="major-editor-fold" id="creatorEditorFold">
+
+
+          <summary class="major-editor-fold-summary">
+
+
+            <span><strong>제작자 프로필</strong><small>프로필 이미지와 제작자 소개를 설정합니다.</small></span>
+
+
+            <b aria-hidden="true">⌄</b>
+
+
+          </summary>
+
+
+          <div class="major-editor-fold-body">
+
+
+            <fieldset>
+
+          <div class="avatar-editor image-drop-zone" data-image-drop-target="avatar" tabindex="0" role="group" aria-label="프로필 이미지 업로드 영역">
+            <div class="avatar-preview" aria-hidden="true">
+              <img id="avatarEditorPreview" alt="" hidden>
+              <span id="avatarEditorFallback">★</span>
+            </div>
+
+            <div>
+              <label class="file-label" for="avatarInput">
+                프로필 이미지 업로드
+              </label>
+              <input
+                id="avatarInput"
+                class="file-input"
+                type="file"
+                accept=".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp"
+              >
+              <p class="image-input-hint">파일 선택 · 끌어놓기 · 이미지 영역 선택 후 Ctrl+V</p>
+              <p
+                id="avatarStorageStatus"
+                class="field-help"
+                role="status"
+                aria-live="polite"
+              >
+                이미지는 새 PNG로 변환되어 이 브라우저에 저장되고 새로고침 후에도 유지됩니다.
+                최대 10MB.
+              </p>
+              <button id="removeAvatarButton" class="text-button" type="button" hidden>
+                이미지 제거
+              </button>
+            </div>
+          </div>
+
+          <div
+            class="profile-background-editor image-drop-zone"
+            data-image-drop-target="profile-background"
+            tabindex="0"
+            role="group"
+            aria-label="프로필 배경 이미지 업로드 영역"
+          >
+            <div class="profile-background-editor-preview" aria-hidden="true">
+              <img id="profileBackgroundEditorPreview" alt="" hidden>
+              <span id="profileBackgroundEditorFallback">PROFILE BACKGROUND</span>
+            </div>
+            <div>
+              <label class="file-label" for="profileBackgroundInput">
+                프로필 배경 이미지 선택
+              </label>
+              <input
+                id="profileBackgroundInput"
+                class="file-input"
+                type="file"
+                accept=".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp"
+              >
+              <p class="image-input-hint">
+                파일 선택 · 끌어놓기 · 이미지 영역 선택 후 Ctrl+V
+              </p>
+              <p
+                id="profileBackgroundStorageStatus"
+                class="field-help"
+                role="status"
+                aria-live="polite"
+              >
+                이미지는 새 PNG로 변환되어 이 브라우저에 저장되고 새로고침 후에도 유지됩니다.
+                최대 10MB.
+              </p>
+              <button
+                id="removeProfileBackgroundButton"
+                class="text-button"
+                type="button"
+                hidden
+              >
+                배경 이미지 제거
+              </button>
+            </div>
+          </div>
+
+          <div class="creator-identity-grid">
+            <label>
+              <span>제작자 이름</span>
+              <input
+                id="creatorNameInput"
+                type="text"
+                maxlength="50"
+                placeholder="예: 푸딩냥"
+              >
+            </label>
+
+            <label>
+              <span>아이디</span>
+              <input
+                id="creatorHandleInput"
+                type="text"
+                maxlength="50"
+                placeholder="예: @id"
+              >
+            </label>
+          </div>
+
+          <input id="creatorFallbackInput" type="hidden">
+
+          <label>
+            <span>소개</span>
+            <textarea
+              id="creatorBioInput"
+              rows="6"
+              maxlength="800"
+              placeholder="제작자 소개글"
+            ></textarea>
+          </label>
+        
+
+
+            </fieldset>
+
+
+          </div>
+
+
+        </details>
+
+        <details class="major-editor-fold" id="socialEditorFold">
+
+
+          <summary class="major-editor-fold-summary">
+
+
+            <span><strong>소셜 링크</strong><small>외부 프로필과 소셜 주소를 관리합니다.</small></span>
+
+
+            <b aria-hidden="true">⌄</b>
+
+
+          </summary>
+
+
+          <div class="major-editor-fold-body">
+
+
+            <fieldset>
+
+          <div class="social-entry">
+            <label>
+              <span>서비스</span>
+              <select id="socialServiceSelect"></select>
+            </label>
+
+            <label>
+              <span>주소</span>
+              <input
+                id="socialUrlInput"
+                type="url"
+                inputmode="url"
+                placeholder="https://..."
+              >
+            </label>
+
+            <button id="addSocialLinkButton" class="primary-button" type="button">
+              링크 추가
+            </button>
+          </div>
+
+          <p id="socialError" class="form-error" role="alert" hidden></p>
+
+          <div id="socialLinkList" class="social-link-list">
+            <p class="empty-message">등록된 링크가 없습니다.</p>
+          </div>
+        
+
+
+            </fieldset>
+
+
+          </div>
+
+
+        </details>
+      </form>
+
+      <details class="major-editor-fold major-editor-collection-fold" id="worldEditorFold">
+        <summary class="major-editor-fold-summary">
+          <span><strong id="worldEditorTitle">세계관 편집</strong><small>세계관 목록과 상세 정보를 관리합니다.</small></span>
+          <b aria-hidden="true">⌄</b>
+        </summary>
+        <div class="major-editor-fold-body">
+          <section class="world-editor-section" aria-labelledby="worldEditorTitle">
+            <div class="major-editor-action-row">
+              <p class="eyebrow">SHARED WORLDS</p>
+              <button id="addWorldButton" class="primary-button" type="button">새 세계관</button>
+            </div>
+
+        <div class="world-editor-layout">
+          <aside class="world-editor-sidebar editor-collection-browser" aria-label="세계관 목록">
+            <div class="editor-collection-controls">
+              <label class="editor-collection-search">
+                <span class="sr-only">세계관 검색</span>
+                <input
+                  id="worldEditorSearchInput"
+                  type="search"
+                  placeholder="세계관 검색"
+                  autocomplete="off"
+                >
+              </label>
+            </div>
+            <p id="worldEditorResultSummary" class="editor-collection-summary" aria-live="polite">0개</p>
+            <div id="worldEditorList" class="world-editor-list editor-collection-list">
+              <p class="empty-message">등록된 세계관이 없습니다.</p>
+            </div>
+            <button id="worldEditorMoreButton" class="editor-collection-more-button" type="button" hidden>
+              더보기
+            </button>
+          </aside>
+
+          <div id="worldEditorEmpty" class="world-editor-empty">
+            <strong>세계관을 추가해 주세요.</strong>
+            <p>대표 이미지와 소개를 입력하면 미리보기에 세계관 카드가 나타납니다.</p>
+          </div>
+
+          <form id="worldForm" class="world-form" novalidate hidden>
+            <div class="world-form-actions" aria-label="선택한 세계관 관리">
+              <button id="moveWorldUpButton" class="secondary-button" type="button">
+                위로
+              </button>
+              <button id="moveWorldDownButton" class="secondary-button" type="button">
+                아래로
+              </button>
+              <button id="deleteWorldButton" class="danger-button" type="button">
+                세계관 삭제
+              </button>
+            </div>
+
+            <div class="world-image-editor image-drop-zone" data-image-drop-target="world" tabindex="0" role="group" aria-label="세계관 이미지 업로드 영역">
+              <div class="world-image-editor-preview" aria-hidden="true">
+                <img id="worldImageEditorPreview" alt="" hidden>
+                <span id="worldImageEditorFallback">WORLD</span>
+              </div>
+
+              <div>
+                <label class="file-label" for="worldImageInput">
+                  세계관 대표 이미지 선택
+                </label>
+                <input
+                  id="worldImageInput"
+                  class="file-input"
+                  type="file"
+                  accept=".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp"
+                >
+                <p class="image-input-hint">파일 선택 · 끌어놓기 · 이미지 영역 선택 후 Ctrl+V</p>
+                <p
+                  id="worldImageStorageStatus"
+                  class="field-help"
+                  role="status"
+                  aria-live="polite"
+                >
+                  이미지는 새 PNG로 변환되어 이 브라우저에 저장되고 새로고침 후에도 유지됩니다. 최대 10MB.
+                </p>
+                <button id="removeWorldImageButton" class="text-button" type="button" hidden>
+                  이미지 제거
+                </button>
+              </div>
+            </div>
+
+            <div class="world-title-grid">
+              <label>
+                <span>세계관 이름</span>
+                <input
+                  id="worldNameInput"
+                  type="text"
+                  placeholder="예: 별의 왕관"
+                >
+              </label>
+
+              <label>
+                <span>부제</span>
+                <input
+                  id="worldSubtitleInput"
+                  type="text"
+                  placeholder="예: 사라진 별과 패전국을 둘러싼 왕국 연대기"
+                >
+              </label>
+            </div>
+
+            <label>
+              <span>태그</span>
+              <input
+                id="worldTagsInput"
+                type="text"
+                placeholder="왕국, 천문, 정치극"
+              >
+              <small class="field-help">쉼표로 구분해 주세요.</small>
+            </label>
+
+            <label>
+              <span>세계관 소개</span>
+              <textarea
+                id="worldDescriptionInput"
+                rows="7"
+                placeholder="문단을 나누려면 빈 줄을 하나 넣어주세요."
+              ></textarea>
+            </label>
+
+            <details
+              class="world-music-editor music-editor editor-fold"
+              aria-labelledby="worldMusicTitle"
+            >
+              <summary class="editor-fold-summary">
+                <span>
+                  <strong class="field-label" id="worldMusicTitle">음악</strong>
+                  <small>세계관과 어울리는 MP3 또는 YouTube 음악을 등록합니다.</small>
+                </span>
+                <b aria-hidden="true">⌄</b>
+              </summary>
+              <div class="editor-fold-body">
+                <div class="editor-fold-action-row">
+                  <button id="addWorldMusicButton" class="secondary-button" type="button">트랙 추가</button>
+                </div>
+                <p class="field-help">MP3는 브라우저에 저장되고 전체 백업 ZIP에 포함됩니다. YouTube는 링크만 저장됩니다.</p>
+                <div id="worldMusicList" class="music-editor-list">
+                  <p class="empty-message">등록된 음악이 없습니다.</p>
+                </div>
+              </div>
+            </details>
+
+            <details
+              class="world-character-link-editor editor-fold"
+              aria-labelledby="worldCharacterLinkTitle"
+            >
+              <summary class="editor-fold-summary">
+                <span>
+                  <strong class="field-label" id="worldCharacterLinkTitle">연결 캐릭터</strong>
+                  <small>현재 세계관에 포함할 캐릭터를 선택합니다.</small>
+                </span>
+                <b aria-hidden="true">⌄</b>
+              </summary>
+              <div class="editor-fold-body">
+                <div class="editor-collection-browser world-character-link-browser">
+                  <div class="editor-collection-controls">
+                    <label class="editor-collection-search">
+                      <span class="sr-only">연결 캐릭터 검색</span>
+                      <input
+                        id="worldCharacterLinkSearchInput"
+                        type="search"
+                        placeholder="이름, 부제, 태그 검색"
+                        autocomplete="off"
+                      >
+                    </label>
+                  </div>
+                  <p id="worldCharacterLinkResultSummary" class="editor-collection-summary" aria-live="polite">0명</p>
+                  <div id="worldCharacterLinkList" class="world-character-link-list editor-collection-list">
+                    <p class="empty-message">등록된 캐릭터가 없습니다.</p>
+                  </div>
+                  <button id="worldCharacterLinkMoreButton" class="editor-collection-more-button" type="button" hidden>
+                    더보기
+                  </button>
+                </div>
+              </div>
+            </details>
+
+            <details class="world-section-editor editor-fold" aria-labelledby="worldSectionsTitle">
+              <summary class="editor-fold-summary">
+                <span>
+                  <strong class="field-label" id="worldSectionsTitle">추가 정보</strong>
+                  <small>세계의 핵심, 주요 갈등처럼 상세창에 표시할 내용을 추가합니다.</small>
+                </span>
+                <b aria-hidden="true">⌄</b>
+              </summary>
+              <div class="editor-fold-body">
+                <div class="editor-fold-action-row">
+                  <button id="addWorldSectionButton" class="secondary-button" type="button">항목 추가</button>
+                </div>
+                <div id="worldSectionList" class="world-section-editor-list">
+                  <p class="empty-message">추가 정보가 없습니다.</p>
+                </div>
+              </div>
+            </details>
+          </form>
+        </div>
+          </section>
+        </div>
+      </details>
+
+      <details class="major-editor-fold major-editor-collection-fold" id="characterEditorFold">
+        <summary class="major-editor-fold-summary">
+          <span><strong id="characterEditorTitle">캐릭터 편집</strong><small>캐릭터 목록과 상세 정보를 관리합니다.</small></span>
+          <b aria-hidden="true">⌄</b>
+        </summary>
+        <div class="major-editor-fold-body">
+          <section class="character-editor-section" aria-labelledby="characterEditorTitle">
+            <div class="major-editor-action-row">
+              <p class="eyebrow">CHARACTERS</p>
+              <div class="character-editor-main-actions">
+                <button id="openCharacterBulkImportButton" class="secondary-button" type="button">일괄 등록</button>
+                <button id="addCharacterButton" class="primary-button" type="button">새 캐릭터</button>
+              </div>
+            </div>
+
+        <div class="character-editor-layout">
+          <aside class="character-editor-sidebar editor-collection-browser" aria-label="캐릭터 목록">
+            <div class="editor-collection-controls">
+              <label class="editor-collection-search">
+                <span class="sr-only">캐릭터 검색</span>
+                <input
+                  id="characterEditorSearchInput"
+                  type="search"
+                  placeholder="캐릭터 검색"
+                  autocomplete="off"
+                >
+              </label>
+            </div>
+            <p id="characterEditorResultSummary" class="editor-collection-summary" aria-live="polite">0명</p>
+            <div id="characterEditorList" class="character-editor-list editor-collection-list">
+              <p class="empty-message">등록된 캐릭터가 없습니다.</p>
+            </div>
+            <button id="characterEditorMoreButton" class="editor-collection-more-button" type="button" hidden>
+              더보기
+            </button>
+          </aside>
+
+          <div id="characterEditorEmpty" class="character-editor-empty">
+            <strong>캐릭터를 추가해 주세요.</strong>
+            <p>대표 이미지와 소개를 입력하면 미리보기에 캐릭터 카드가 나타납니다.</p>
+          </div>
+
+          <form id="characterForm" class="character-form" novalidate hidden>
+            <div class="character-form-actions" aria-label="선택한 캐릭터 관리">
+              <button id="moveCharacterUpButton" class="secondary-button" type="button">위로</button>
+              <button id="moveCharacterDownButton" class="secondary-button" type="button">아래로</button>
+              <button id="deleteCharacterButton" class="character-danger-button" type="button">캐릭터 삭제</button>
+            </div>
+
+            <details class="character-image-editor editor-fold image-drop-zone" data-image-drop-target="character" tabindex="0" aria-labelledby="characterImagesTitle">
+              <summary class="editor-fold-summary">
+                <span>
+                  <strong class="character-field-label" id="characterImagesTitle">캐릭터 이미지</strong>
+                  <small>PNG·JPEG·JPG·WebP 이미지를 최대 5장까지 등록할 수 있습니다. 첫 이미지가 대표 이미지입니다.</small>
+                </span>
+                <b aria-hidden="true">⌄</b>
+              </summary>
+              <div class="editor-fold-body">
+                <div class="editor-fold-action-row">
+                  <label class="file-label" for="characterImageInput">이미지 추가</label>
+                  <input id="characterImageInput" class="file-input" type="file" accept=".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp" multiple>
+                </div>
+                <p class="image-input-hint">파일 선택 · 끌어놓기 · 이미지 영역 선택 후 Ctrl+V</p>
+                <p id="characterImageStorageStatus" class="field-help" role="status" aria-live="polite">
+                  이미지는 새 PNG로 변환되어 이 브라우저에 저장되고 새로고침 후에도 유지됩니다. 이미지당 최대 10MB.
+                </p>
+                <div id="characterImageList" class="character-image-list">
+                  <p class="empty-message">등록된 이미지가 없습니다.</p>
+                </div>
+              </div>
+            </details>
+
+            <div class="character-identity-grid">
+              <label>
+                <span>캐릭터 이름</span>
+                <input id="characterNameInput" type="text" placeholder="예: 리라 베일">
+              </label>
+
+              <label>
+                <span>부제</span>
+                <input id="characterSubtitleInput" type="text" placeholder="예: 별을 잃어버린 천문학자">
+              </label>
+            </div>
+
+            <div class="character-world-featured-grid">
+              <label>
+                <span>세계관</span>
+                <select id="characterWorldSelect"></select>
+              </label>
+
+              <label class="character-featured-option">
+                <input id="characterFeaturedInput" type="checkbox">
+                <span>
+                  <strong>추천 캐릭터로 표시</strong>
+                  <small>추천 캐릭터는 최대 3명까지 지정할 수 있습니다.</small>
+                </span>
+              </label>
+            </div>
+
+            <details class="character-genre-editor editor-fold" aria-labelledby="characterGenresTitle">
+              <summary class="editor-fold-summary">
+                <span>
+                  <strong class="character-field-label" id="characterGenresTitle">장르</strong>
+                  <small>관리자 카탈로그에 등록된 장르에서 선택합니다.</small>
+                </span>
+                <b aria-hidden="true">⌄</b>
+              </summary>
+              <div class="editor-fold-body">
+                <div id="characterGenreList" class="character-option-grid"></div>
+              </div>
+            </details>
+
+            <label>
+              <span>태그</span>
+              <input id="characterTagsInput" type="text" placeholder="천문학자, 쌍방구원, 느린관계">
+              <small class="field-help">쉼표로 구분해 주세요.</small>
+            </label>
+
+            <label>
+              <span>캐릭터 소개</span>
+              <textarea id="characterDescriptionInput" rows="7" placeholder="문단을 나누려면 빈 줄을 하나 넣어주세요."></textarea>
+            </label>
+
+          
+
+            <details class="character-platform-editor editor-fold" aria-labelledby="characterPlatformsTitle">
+              <summary class="editor-fold-summary">
+                <span>
+                  <strong class="character-field-label" id="characterPlatformsTitle">플랫폼</strong>
+                  <small>플랫폼을 선택하고 캐릭터 페이지 주소를 입력합니다.</small>
+                </span>
+                <b aria-hidden="true">⌄</b>
+              </summary>
+              <div class="editor-fold-body">
+                <div id="characterPlatformList" class="character-platform-editor-list"></div>
+              </div>
+            </details>
+
+            <details class="character-content-editor editor-fold" aria-labelledby="characterContentsTitle">
+              <summary class="editor-fold-summary">
+                <span>
+                  <strong class="character-field-label" id="characterContentsTitle">추가 콘텐츠</strong>
+                  <small>제작 비하인드, 과거, 비밀 설정처럼 상세창에 표시할 내용을 추가합니다.</small>
+                </span>
+                <b aria-hidden="true">⌄</b>
+              </summary>
+              <div class="editor-fold-body">
+                <div class="editor-fold-action-row">
+                  <button id="addCharacterContentButton" class="secondary-button" type="button">항목 추가</button>
+                </div>
+                <div id="characterContentList" class="character-content-editor-list">
+                  <p class="empty-message">추가 콘텐츠가 없습니다.</p>
+                </div>
+              </div>
+            </details>
+<details
+              class="character-music-editor music-editor editor-fold"
+              aria-labelledby="characterMusicTitle"
+            >
+              <summary class="editor-fold-summary">
+                <span>
+                  <strong class="character-field-label" id="characterMusicTitle">음악</strong>
+                  <small>캐릭터와 어울리는 MP3 또는 YouTube 음악을 등록합니다.</small>
+                </span>
+                <b aria-hidden="true">⌄</b>
+              </summary>
+              <div class="editor-fold-body">
+                <div class="editor-fold-action-row">
+                  <button id="addCharacterMusicButton" class="secondary-button" type="button">트랙 추가</button>
+                </div>
+                <p class="field-help">MP3는 브라우저에 저장되고 전체 백업 ZIP에 포함됩니다. YouTube는 링크만 저장됩니다.</p>
+                <div id="characterMusicList" class="music-editor-list">
+                  <p class="empty-message">등록된 음악이 없습니다.</p>
+                </div>
+              </div>
+            </details>
+          </form>
+        </div>
+          </section>
+        </div>
+      </details>
+    </section>
+
+    <section class="preview-panel" aria-labelledby="previewTitle">
+      <div class="preview-toolbar">
+        <div>
+          <p class="eyebrow">LIVE PREVIEW</p>
+          <h2 id="previewTitle">미리보기</h2>
+        </div>
+        <label class="preview-width-control" for="previewWidthInput">
+          <span>미리보기 폭</span>
+          <input id="previewWidthInput" type="range" min="380" max="760" step="10" value="620">
+          <output id="previewWidthOutput" for="previewWidthInput">620px</output>
+        </label>
+        <span id="saveStatus" class="save-status" role="status" aria-live="polite">자동 저장 준비 중</span>
+      </div>
+
+      <div class="preview-viewport" id="previewViewport">
+        <div class="preview-canvas" id="previewCanvas">
+      <article class="portfolio-preview">
+        <header class="preview-brand">
+          <span class="preview-brand-mark" aria-hidden="true">✦</span>
+          <strong id="previewSiteTitle">사이트 제목</strong>
+        </header>
+
+        <div class="preview-profile">
+          <div class="preview-profile-background" aria-hidden="true">
+            <img id="previewProfileBackgroundImage" alt="" hidden>
+          </div>
+
+          <div class="preview-avatar" aria-hidden="true">
+            <img id="previewAvatarImage" alt="" hidden>
+            <span id="previewAvatarFallback">✦</span>
+          </div>
+
+          <div class="preview-profile-copy">
+            <p id="previewSiteDescription" class="preview-manifesto"></p>
+            <h3 id="previewCreatorName">제작자 이름</h3>
+            <p id="previewCreatorHandle" class="preview-handle"></p>
+            <div id="previewCreatorBio" class="preview-bio"></div>
+            <div id="previewCreatorLinks" class="preview-social-links"></div>
+            <div class="hero-stats" aria-label="아카이브 요약">
+              <div><strong id="previewCharacterCount">0</strong><span>캐릭터</span></div>
+              <div><strong id="previewWorldCount">0</strong><span>세계관</span></div>
+              <div><strong id="previewGenreCount">0</strong><span>장르</span></div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <section class="stardust-character-preview character-featured-preview" id="previewFeaturedSection" aria-labelledby="previewFeaturedTitle" hidden>
+        <div class="character-preview-heading">
+          <div>
+            <p class="eyebrow">FEATURED CHARACTERS</p>
+            <h2 id="previewFeaturedTitle">추천 캐릭터</h2>
+          </div>
+        </div>
+        <div class="character-featured-grid" id="previewFeaturedGrid"></div>
+      </section>
+
+      <section class="stardust-world-preview" id="previewWorldSection" aria-labelledby="previewWorldTitle" hidden>
+        <div class="world-preview-section-heading">
+          <div>
+            <p class="eyebrow">SHARED WORLDS</p>
+            <h2 id="previewWorldTitle">세계관 아카이브</h2>
+          </div>
+        </div>
+
+        <div class="world-grid" id="previewWorldGrid"></div>
+        <div class="archive-toggle-wrap" id="previewWorldToggleWrap" hidden>
+          <button
+            class="archive-toggle"
+            id="previewWorldToggle"
+            type="button"
+            aria-controls="previewWorldGrid"
+            aria-expanded="false"
+          >
+            <span>세계관 더보기</span>
+            <b aria-hidden="true">↓</b>
+          </button>
+        </div>
+        <p id="previewWorldEmpty" class="world-preview-empty">
+          아직 등록된 세계관이 없습니다.
+        </p>
+      </section>
+
+      <section class="stardust-character-preview character-archive-preview" id="previewCharacterSection" aria-labelledby="previewCharacterTitle" hidden>
+        <div class="character-preview-heading character-archive-heading">
+          <div>
+            <p class="eyebrow">FULL ARCHIVE</p>
+            <h2 id="previewCharacterTitle">캐릭터 아카이브</h2>
+          </div>
+          <p id="previewCharacterResultSummary" aria-live="polite">총 0명 중 0명 표시</p>
+        </div>
+
+        <div class="controls" aria-label="캐릭터 검색 및 필터">
+          <label class="search-box">
+            <span class="sr-only">캐릭터 검색</span>
+            <span aria-hidden="true">⌕</span>
+            <input
+              id="previewCharacterSearchInput"
+              type="search"
+              placeholder="이름, 소개, 태그, 세계관으로 검색"
+              autocomplete="off"
+            >
+          </label>
+
+          <div class="filter-row">
+            <div class="filter-group" aria-labelledby="previewGenreFilterLabel">
+              <span class="filter-label" id="previewGenreFilterLabel">장르</span>
+              <div class="chip-list" id="previewGenreFilters"></div>
+            </div>
+            <div class="filter-group" aria-labelledby="previewTagFilterLabel">
+              <span class="filter-label" id="previewTagFilterLabel">태그</span>
+              <div class="chip-list" id="previewTagFilters"></div>
+            </div>
+            <div class="filter-group" aria-labelledby="previewPlatformFilterLabel">
+              <span class="filter-label" id="previewPlatformFilterLabel">플랫폼</span>
+              <div class="chip-list" id="previewPlatformFilters"></div>
+            </div>
+            <div class="filter-group filter-group--world" aria-labelledby="previewWorldFilterLabel">
+              <span class="filter-label" id="previewWorldFilterLabel">세계관</span>
+              <div class="chip-list" id="previewWorldFilters"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="character-preview-grid" id="previewCharacterGrid"></div>
+        <div class="character-archive-toggle-wrap" id="previewCharacterToggleWrap" hidden>
+          <button class="character-archive-toggle" id="previewCharacterToggle" type="button" aria-controls="previewCharacterGrid" aria-expanded="false">
+            <span>캐릭터 더보기</span>
+            <b aria-hidden="true">↓</b>
+          </button>
+        </div>
+        <div class="empty-state" id="previewCharacterEmpty" hidden>
+          <span>◇</span>
+          <h3>조건에 맞는 캐릭터가 없어요.</h3>
+          <p>검색어나 필터를 조금 느슨하게 풀어보세요.</p>
+          <button class="primary-button" id="previewCharacterResetFilters" type="button">필터 초기화</button>
+        </div>
+      </section>
+        </div>
+      </div>
+    </section>
+  </main>
+
+<dialog
+  class="guide-dialog"
+  id="netlifyGuideDialog"
+  aria-labelledby="netlifyGuideTitle"
+>
+  <div class="guide-dialog-shell">
+    <header class="guide-dialog-header">
+      <div>
+        <p class="eyebrow">생성기 사용 가이드</p>
+        <h2 id="netlifyGuideTitle">사용 전 꼭 확인!</h2>
+      </div>
+
+      <button
+        class="guide-dialog-close"
+        id="netlifyGuideClose"
+        type="button"
+        aria-label="업로드 안내 닫기"
+      >
+        ×
+      </button>
+    </header>
+
+    <ol class="guide-step-list">
+      <li>
+        <strong>수정 가능, 재배포 금지</strong>
+        <p>
+          본 생성기는 여러 플랫폼의 캐릭터와 세계관을 한 곳에 통합시켜 유저에게 보여주기 위한, <b>AI채팅 제작자용 아카이브</b>를 목적으로 합니다. 배포 받은 분의 개인적인 코드 <b>수정도 가능</b>하지만, 생성기의 <b>재배포는 금지</b>합니다.
+        </p>
+      </li>
+
+      <li>
+        <strong>자동 임시저장 기능</strong>
+        <p>
+          작성 내용은 <b>자동으로 임시저장</b>되지만, 캐시 삭제 등 브라우저의 설정이 변경되면 데이터가 삭제될 수 있으니 중간에 백업이 필요합니다. 캐시가 남아있을 경우 관리자가 레이아웃을 수정해도 번경되지 않으니, 가끔 <b>ctrl+shift+R로 강제 새로고침</b> 해주세요. 임시저장된 데이터에는 영향이 없습니다.
+        </p>
+      </li>
+
+      <li>
+        <strong>백업 기능</strong>
+        <p>
+          <b>백업용 ZIP / Netlify 배포용 ZIP / GitHub 배포용 ZIP / GitHub 분할 배포용 ZIP</b> 중 용도에 맞춰 저장해 주세요. 배포용 ZIP은 생성기에서 다시 불러올 수 없으므로, 배포 뒤에도 백업용 ZIP을 따로 보관하는 것을 권장합니다.
+        </p>
+      </li>
+
+      <li>
+        <strong>사이트 배포</strong>
+        <p>
+          netlify와 github 중 선택하여 배포한 뒤 사이트 링크를 이용합니다. github는 주소에 사용자의 id가 있으니 깡계 이용하세요.
+        </p>
+      </li>
+
+      <li>
+        <strong>Github</strong>
+        <p>
+          파일이 90개 이하라면 GitHub 배포용 ZIP을 사용합니다. 파일이 90개를 넘거나 세계관·캐릭터만 갱신할 때는 GitHub 분할 배포용 ZIP을 사용하고, 메인.zip → 세계관.zip → 캐릭터 ZIP 순서로 압축을 풀어 같은 저장소에 업로드합니다.
+        </p>
+      </li>
+    </ol>
+
+    <div class="guide-dialog-note">
+      <strong>Netlify</strong>
+      <p>
+        배포용 zip 다운로드 -> 하단의 Netlify Drop을 클릭 -> 업로드 화면에 zip 파일 업로드 -> 업로드 완료 후 site 주소 확인<br>Netlify는 한달에 배포 20회 제한이 있으니 주의하세요. 
+      </p>
+    </div>
+
+    <a
+      class="primary-button guide-dialog-link"
+      href="https://app.netlify.com/drop"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      Netlify Drop 열기 ↗
+    </a>
+  </div>
+</dialog>
+
+  <dialog class="filter-picker" id="previewCharacterFilterPicker" aria-labelledby="previewCharacterFilterPickerTitle">
+    <div class="filter-picker-shell">
+      <header class="filter-picker-header">
+        <div>
+          <p class="eyebrow">FILTER</p>
+          <h2 id="previewCharacterFilterPickerTitle">필터 선택</h2>
+          <p class="filter-picker-hint">여러 항목을 동시에 선택할 수 있습니다.</p>
+        </div>
+        <button
+          class="filter-picker-close"
+          id="previewCharacterFilterPickerClose"
+          type="button"
+          aria-label="필터 선택 닫기"
+        >×</button>
+      </header>
+
+      <label class="filter-picker-search">
+        <span aria-hidden="true">⌕</span>
+        <input
+          id="previewCharacterFilterPickerSearch"
+          type="search"
+          placeholder="목록에서 검색"
+          autocomplete="off"
+        >
+      </label>
+
+      <div class="filter-picker-options" id="previewCharacterFilterPickerOptions"></div>
+      <p class="filter-picker-empty" id="previewCharacterFilterPickerEmpty" hidden>
+        일치하는 항목이 없습니다.
+      </p>
+    </div>
+  </dialog>
+
+  <dialog class="character-preview-modal" id="characterPreviewModal" aria-labelledby="characterPreviewModalTitle">
+    <div class="character-preview-modal-shell">
+      <button class="character-preview-modal-close" id="characterPreviewModalClose" type="button" aria-label="캐릭터 상세 닫기">×</button>
+      <div class="character-preview-gallery">
+        <header class="character-preview-identity">
+          <h2 id="characterPreviewModalTitle"></h2>
+          <p id="characterPreviewModalSummary"></p>
+        </header>
+        <div class="character-preview-main-image-wrap">
+          <img id="characterPreviewMainImage" src="" alt="" hidden>
+          <div id="characterPreviewMainImageFallback" class="character-preview-main-image-fallback">CHARACTER</div>
+        </div>
+        <div class="character-preview-thumbnails" id="characterPreviewThumbnails" hidden></div>
+        <div class="character-preview-platform-rail" id="characterPreviewPlatforms"></div>
+      </div>
+      <article class="character-preview-modal-content">
+        <div class="character-preview-kicker" id="characterPreviewKicker"></div>
+        <div class="character-preview-tag-list" id="characterPreviewModalTags"></div>
+        <section class="soundtrack-panel" id="characterPreviewSoundtrack" aria-label="캐릭터 음악" hidden></section>
+        <div class="character-preview-description" id="characterPreviewModalDescription"></div>
+        <section class="character-preview-world-panel" id="characterPreviewWorldPanel" hidden>
+          <button class="character-preview-world-button" id="characterPreviewWorldButton" type="button">
+            <span>
+              <small>SHARED WORLD</small>
+              <strong id="characterPreviewWorldName"></strong>
+              <em id="characterPreviewWorldSummary"></em>
+            </span>
+            <b>세계 구경하기 ↗</b>
+          </button>
+        </section>
+        <section class="character-preview-content-section" id="characterPreviewContentSection" hidden>
+          <div class="character-preview-content-list" id="characterPreviewContents"></div>
+        </section>
+      </article>
+    </div>
+  </dialog>
+
+  <dialog class="world-modal" id="worldPreviewModal" aria-labelledby="worldPreviewModalTitle">
+    <div class="world-modal-shell">
+      <button class="world-preview-modal-close" id="worldPreviewModalClose" type="button" aria-label="세계관 상세 닫기">×</button>
+      <div class="world-cover-panel">
+        <img id="worldPreviewModalImage" src="" alt="" hidden>
+        <div id="worldPreviewModalImageFallback" class="world-cover-fallback">WORLD ARCHIVE</div>
+      </div>
+      <article class="world-modal-content">
+        <p class="modal-kicker">WORLD ARCHIVE</p>
+        <h2 id="worldPreviewModalTitle"></h2>
+        <p class="world-modal-summary" id="worldPreviewModalSummary"></p>
+        <div class="world-preview-tag-list" id="worldPreviewModalTags"></div>
+        <section class="soundtrack-panel" id="worldPreviewSoundtrack" aria-label="세계관 음악" hidden></section>
+        <div class="world-modal-description" id="worldPreviewModalDescription"></div>
+        <div class="world-section-list" id="worldPreviewModalSections"></div>
+
+        <section class="world-character-section" id="worldPreviewCharacterSection" aria-labelledby="worldPreviewCharacterHeading">
+          <div class="panel-heading">
+            <p class="eyebrow">CHARACTERS IN THIS WORLD</p>
+            <h3 id="worldPreviewCharacterHeading">이 세계의 캐릭터</h3>
+          </div>
+          <div class="world-character-list" id="worldPreviewCharacterList"></div>
+        </section>
+      </article>
+    </div>
+  </dialog>
+
+
+  <!-- 캐릭터 일괄 등록 -->
+  <dialog id="characterBulkImportDialog" class="character-bulk-dialog" aria-labelledby="characterBulkImportTitle">
+    <div class="character-bulk-dialog-shell">
+      <header class="character-bulk-dialog-header">
+        <div>
+          <p class="eyebrow">BULK IMPORT</p>
+          <h2 id="characterBulkImportTitle">캐릭터 일괄 등록</h2>
+          <p>생성기 안에서 여러 캐릭터와 PNG 이미지를 직접 작성하고 한 번에 등록합니다.</p>
+        </div>
+        <div class="character-bulk-header-actions">
+          <button id="clearAllCharacterBulkRowsButton" class="text-button" type="button">전부삭제</button>
+          <button id="removeEmptyCharacterBulkRowsButton" class="secondary-button" type="button">빈 카드 삭제</button>
+          <button id="closeCharacterBulkImportButton" class="secondary-button" type="button">닫기</button>
+        </div>
+      </header>
+
+      <section
+        class="character-bulk-auto-image-panel image-drop-zone"
+        aria-labelledby="characterBulkAutoImageTitle"
+        data-character-bulk-auto-image-drop
+        tabindex="0"
+        role="group"
+      >
+        <div class="character-bulk-auto-image-heading">
+          <div class="character-bulk-auto-image-copy">
+            <strong id="characterBulkAutoImageTitle">이미지 일괄 추가</strong>
+            <small>파일명: 캐릭터이름1~5 · 이 줄에 드래그하거나 클릭 후 Ctrl+V</small>
+          </div>
+          <div class="character-bulk-auto-image-actions">
+            <label class="file-label" for="characterBulkAutoImagesInput">파일 선택</label>
+            <button
+              id="pasteCharacterBulkAutoImagesButton"
+              class="secondary-button"
+              type="button"
+            >클립보드</button>
+          </div>
+          <input
+            id="characterBulkAutoImagesInput"
+            class="file-input"
+            type="file"
+            accept=".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp"
+            multiple
+          >
+        </div>
+        <p
+          id="characterBulkAutoImageStatus"
+          class="character-bulk-auto-image-status"
+          role="status"
+          aria-live="polite"
+        >등록된 이미지 0장</p>
+        <div
+          id="characterBulkAutoImageReport"
+          class="character-bulk-auto-image-report"
+          hidden
+        ></div>
+      </section>
+
+      <details class="character-bulk-paste-panel">
+        <summary>메모장에서 ^ 구분자로 붙여넣기</summary>
+        <div class="character-bulk-paste-body">
+          <p class="field-help">
+            항목은 ^ 기호로 구분합니다. 캐릭터와 캐릭터 사이는 한 줄에 \ 하나만 입력해 구분합니다.
+		형식: 이름^부제^태그1,태그2^캐릭터 소개^플랫폼명^링크 주소^플랫폼명^링크 주소
+	빈 부제·태그·소개는 ^^로 자리를 유지해 주세요.
+          </p>
+<textarea
+  id="characterBulkPasteInput"
+  rows="7"
+  placeholder="리안^황실의 검^기사,판타지^황제를 지키는 기사입니다.
+설명의 줄바꿈도 그대로 유지됩니다.^팅글^https://example.com/tingle
+\
+세라^별의 마녀^마법사,집착^밤하늘을 연구합니다.^블룸^https://example.com/bloom"
+></textarea>
+          <div class="character-bulk-paste-actions">
+            <button id="applyCharacterBulkPasteButton" class="secondary-button" type="button">붙여넣은 캐릭터 추가</button>
+          </div>
+        </div>
+      </details>
+
+
+      <div id="characterBulkRowList" class="character-bulk-row-list"></div>
+
+      <p id="characterBulkImportError" class="form-error character-bulk-global-error" role="alert" hidden></p>
+
+      <footer class="character-bulk-dialog-actions">
+        <span id="characterBulkImportCount" class="character-bulk-count">입력된 캐릭터 0명</span>
+        <div>
+          <button id="cancelCharacterBulkImportButton" class="secondary-button" type="button">취소</button>
+          <button id="addCharacterBulkRowButton" class="secondary-button" type="button">캐릭터 추가</button>
+          <button id="confirmCharacterBulkImportButton" class="primary-button" type="button">캐릭터 등록</button>
+        </div>
+      </footer>
+    </div>
+  </dialog>
+
+  <script src="../shared/admin-catalog.js"></script>
+  <script src="../shared/empty-project.js"></script>
+  <script src="./generator.js" defer></script>
+</body>
+</html>
