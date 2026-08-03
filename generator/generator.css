@@ -7264,3 +7264,12 @@ textarea {
   display: none;
   margin-top: 0;
 }
+
+/* =========================================================
+   Archive shell bottom protrusion fix
+   The dark strip below the rounded shell was the shell's drop shadow,
+   not overflowing content. Remove it without changing card layout.
+   ========================================================= */
+.archive-site-shell {
+  box-shadow: none;
+}
